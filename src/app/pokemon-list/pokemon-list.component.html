@@ -5,7 +5,7 @@
     *ngFor="let pokemon of pokemonMap | keyvalue | paginate: {itemsPerPage: 10, currentPage: this.page, totalItems: numberOfPokemon}">
     <div id="nameAndID" style="display:inline-flex;">
       <nav>
-        <a routerLink="/evolutions/?pokemonName={{pokemon.value.name}}">
+        <a routerLink="/evolutions/?pokemonID={{pokemon.value.id}}">
         <h3 id="name"
             *ngIf="pokemon.value.id;"
         >{{pokemon.value.name | titlecase}}</h3>

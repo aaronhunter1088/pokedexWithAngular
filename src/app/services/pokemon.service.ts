@@ -10,6 +10,7 @@ export class PokemonService {
 
   PokeAPI = require("pokeapi-js-wrapper")
   Pokedex = new this.PokeAPI.Pokedex();
+  savedPageNumber: number = 1;
 
   getPokemon(_limit: number, _offset: number) {
     const interval = {
@@ -31,5 +32,13 @@ export class PokemonService {
   callURL(url: any) {
     return this.http.get(url);
 
+  }
+
+  saveCurrentPage(page: number) {
+    this.savedPageNumber = page;
+  }
+
+  getSavedPage(): number {
+    return this.savedPageNumber;
   }
 }

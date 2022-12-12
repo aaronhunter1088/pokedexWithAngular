@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit } from '@angular/core';
 import { PokemonService } from "../services/pokemon.service";
 import { HttpClient } from "@angular/common/http";
 
@@ -7,24 +7,31 @@ import { HttpClient } from "@angular/common/http";
   templateUrl: './pokemon-list.component.html',
   styleUrls: ['./pokemon-list.component.css']
 })
-export class PokemonListComponent implements OnInit {
+export class PokemonListComponent implements OnInit, OnChanges {
 
-  constructor(private pokemonService: PokemonService, private http: HttpClient) {}
+  constructor(private pokemonService: PokemonService, private http: HttpClient) {
+  }
 
   pokemonMap = new Map<number, any>();
-  page = 1;
+  page: number = 1;
   numberOfPokemon: number | undefined;
   showDefaultImage: boolean = false;
 
   ngOnInit(): void {
+    this.page = this.pokemonService.getSavedPage();
     this.getThePokemon();
   }
 
   ngOnChanges() {
-    document.body.style.backgroundColor = "#ffffff";
+  }
+
+  ngOnDestroy() {
+    this.pokemonService.saveCurrentPage(this.page);
   }
 
   getThePokemon() {
+    console.log("page number is ", this.page);
+    // @ts-ignore
     this.pokemonService.getPokemon(10, (this.page - 1) * 10)
       .then((pokemonListResponse: any) => {
         //console.log(response);
@@ -53,6 +60,7 @@ export class PokemonListComponent implements OnInit {
                   //console.log(color);
                   pokemon.color = color;
                   this.pokemonMap.set(pokemon.id, JSON.parse(JSON.stringify(pokemon)));
+                  this.updatePage(<number>this.page);
                 })
                 .catch((error: any) => {
                   //console.log("getPokemonSpeciesData failed for ", pokemonResult.name);
@@ -128,5 +136,9 @@ export class PokemonListComponent implements OnInit {
     else if (pokemonColor === "black") { return "#8f8b8b"}
     else if (pokemonColor === "gray" || pokemonColor === "grey") { return "#8f8b8b"}
     else return "#ffffff";
+  }
+
+  updatePage(newPage: number) {
+    this.page = newPage;
   }
 }

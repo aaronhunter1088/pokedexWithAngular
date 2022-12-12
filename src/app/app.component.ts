@@ -23,7 +23,6 @@ export class AppComponent implements OnInit, OnChanges {
       if (event instanceof NavigationEnd) {
         // Hide loading indicator
         this.currentRoute = event.url;
-        this.keepWhiteBackground();
         console.log(event);
       }
 
@@ -40,15 +39,11 @@ export class AppComponent implements OnInit, OnChanges {
   title = 'PokedexHome'
 
   ngOnInit(): void {
-    document.body.style.backgroundColor = "#ffffff";
+
   }
 
   ngOnChanges() {
-    document.body.style.backgroundColor = "#ffffff";
-  }
 
-  keepWhiteBackground() {
-    document.body.style.backgroundColor = "#ffffff";
   }
 
 }
