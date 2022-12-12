@@ -1,0 +1,65 @@
+<div id="pokedex">
+  <div class="pokemon-grid">
+    <div id="imageAndImageBtns" class="box"
+         [ngStyle]="{'background-color':changeColor(pokemonColor)}">
+      <h1 id="infoTitle">{{pokemonName | titlecase}}</h1>
+      <img id="imageOfPokemon" alt="pokemon" src="{{pokemonImage}}" width="200" height="200"/>
+      <div id="photosDiv">
+        <button id="defaultImgBtn" class="tab" (click)="showImage('default')">Show Default</button>
+        <button id="shinyImgBtn" class="tab" (click)="showImage('shiny')">Show Shiny</button>
+      </div>
+    </div>
+    <div id="info" class="box"
+         [ngStyle]="{'background-color':changeColor(pokemonColor)}">
+      <div style="display:inline-flex">
+        <h3 id="name">Name: {{pokemonName | titlecase}}</h3> &nbsp;&nbsp;&nbsp;&nbsp;
+        <h3 id="idOfPokemon">ID: {{pokemonID}}</h3>
+      </div>
+      <br>
+      <div id="hAndW" style="display:inline-flex;">
+        <label for="heightOfPokemon">Height:</label> <h3 id="heightOfPokemon">{{pokemonHeight}}</h3> &nbsp;
+        <label for="weightOfPokemon">Weight:</label> <h3 id="weightOfPokemon">{{pokemonWeight}}</h3>
+      </div>
+      <br>
+      <div id="colorAndType" style="display:inline-flex;">
+        <label for="colorOfPokemon">Color:</label> <h3 id="colorOfPokemon">{{pokemonColor | titlecase}}</h3> &nbsp;
+        <label for="typeOfPokemon">Type:</label> <h3 id="typeOfPokemon">{{pokemonType}}</h3>
+      </div>
+      <div style="display: flow;">
+        <button id="descriptionBtn" class="tab" (click)="showDescription()">Description</button>
+        <button id="locationsBtn" class="tab" (click)="showLocations()">Locations</button>
+        <button id="movesBtn" class="tab" (click)="showMoves()">Moves</button>
+        <!--<button id="descTabBtn" class="tab" onclick="showDivAndBoldText('descriptionDiv');">Description</button>-->
+        <!--<button id="locTabBtn" class="tab" onclick="showDivAndBoldText('locationsDiv')">Location</button>-->
+        <!--<button id="movesTabBtn" class="tab" onclick="showDivAndBoldText('movesDiv')">Moves</button>-->
+        <!--<button id="berriesTabBtn" class="tab" onclick="showDivAndBoldText('berriesDiv')">Berries</button>-->
+      </div>
+      <br>
+      <div
+        *ngIf="descriptionDiv"
+        id="descriptionDiv" style="display:inline-flex; width: 300px;">
+        <h3 id="description">{{pokemonDescription}}</h3>
+      </div>
+      <div
+        *ngIf="locationsDiv"
+        id="locationsDiv"
+        style="overflow-y: scroll; overflow-x: hidden; height:100px;">
+        <h3
+          id="locations"
+          class="listStyle"
+          *ngFor="let location of pokemonLocations"
+        >{{location}}</h3>
+      </div>
+      <div
+        *ngIf="movesDiv"
+        id="movesDiv"
+        style="overflow-y: scroll; overflow-x: hidden; height:100px;">
+        <h3
+          id="moves"
+          class="listStyle"
+          *ngFor="let move of pokemonMoves"
+        >{{move}}</h3>
+      </div>
+    </div>
+  </div>
+</div>

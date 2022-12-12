@@ -1,1 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
+.pokedexStyle {
+  display: flow;
+  text-align: center;
+  vertical-align: middle;
+}
+@media only screen and (max-width: 300px) {
+  .pokedexStyle {
+    display: inline-flex;
+    text-align: center;
+    vertical-align: middle;
+    width: 100px;
+  }
+}
+.tab {
+  cursor: pointer;
+}
+
+html, body {
+  background-color: white;
+}
