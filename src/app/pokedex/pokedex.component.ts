@@ -1,5 +1,6 @@
 import {Component, OnInit, OnChanges, Input, HostListener} from '@angular/core';
-
+import {PokemonService} from "../services/pokemon.service";
+import {HttpClient} from "@angular/common/http";
 
 @Component({
   selector: 'app-pokedex',
@@ -7,8 +8,7 @@ import {Component, OnInit, OnChanges, Input, HostListener} from '@angular/core';
   styleUrls: ['./pokedex.component.css']
 })
 export class PokedexComponent implements OnInit, OnChanges {
-  // variables passed into team component
-  @Input() pokemon = {};
+  //@Input() pokemon = {};
   @Input() sprites = {};
   @Input() pokemonImage = '';
   @Input() pokemonName = '';
@@ -21,16 +21,6 @@ export class PokedexComponent implements OnInit, OnChanges {
   @Input() pokemonDescription = '';
   @Input() pokemonLocations: string[] = [];
   @Input() pokemonMoves: string[] = [];
-  customOptions = {
-    protocol: "https",
-    //hostName: "localhost:4200",
-    versionPath: "/api/v2/",
-    cache: true,
-    timeout: 5 * 1000, // 5s
-    cacheImages: true
-  }
-  PokeAPI = require("pokeapi-js-wrapper")
-  Pokedex = new this.PokeAPI.Pokedex(customElements);
   descriptionDiv = true;
   locationsDiv = false;
   movesDiv = false;
@@ -40,7 +30,7 @@ export class PokedexComponent implements OnInit, OnChanges {
   screenHeight: number = 0;
   styleFlag: boolean = false;
 
-  constructor() {
+  constructor(private pokemonService: PokemonService, private http: HttpClient) {
   }
 
   ngOnInit(): void {

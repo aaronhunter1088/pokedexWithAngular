@@ -7,22 +7,21 @@ import { HttpClient } from "@angular/common/http";
   templateUrl: './pokemon-list.component.html',
   styleUrls: ['./pokemon-list.component.css']
 })
-export class PokemonListComponent implements OnInit, OnChanges {
+export class PokemonListComponent implements OnInit {
 
   constructor(private pokemonService: PokemonService, private http: HttpClient) {
   }
 
   pokemonMap = new Map<number, any>();
   page: number = 1;
-  numberOfPokemon: number | undefined;
+  itemsPerPage = 10;
+  numberOfPokemon: number = 0;
   showDefaultImage: boolean = false;
 
   ngOnInit(): void {
     this.page = this.pokemonService.getSavedPage();
+    this.itemsPerPage = 10;
     this.getThePokemon();
-  }
-
-  ngOnChanges() {
   }
 
   ngOnDestroy() {
@@ -31,16 +30,20 @@ export class PokemonListComponent implements OnInit, OnChanges {
 
   getThePokemon() {
     console.log("page number is ", this.page);
+    this.itemsPerPage = 10;
+    console.log("itemsPerPage: ", this.itemsPerPage);
     // @ts-ignore
-    this.pokemonService.getPokemon(10, (this.page - 1) * 10)
+    this.pokemonService.getPokemonList(this.itemsPerPage, (this.page - 1) * 10)
       .then((pokemonListResponse: any) => {
+        this.pokemonMap = this.newMap();
         //console.log(response);
         this.numberOfPokemon = pokemonListResponse.count;
-        pokemonListResponse.results.forEach((pokemonResult: any) => {
-          this.pokemonService.getPokemonSpecificData(pokemonResult.name)
+        console.log("numberOfPokemon: ", this.numberOfPokemon);
+        pokemonListResponse.results.forEach((pokemon: any) => {
+          this.pokemonService.getPokemonSpecificData(pokemon.name)
             .then((pokemon: any) => {
               //console.log(pokemon);
-              let sprites = JSON.parse(JSON.stringify(pokemon['sprites']));
+              let sprites = pokemon['sprites'];
               let types = pokemon.types;
               let pokemonType = '';
               //console.log(types);
@@ -54,25 +57,11 @@ export class PokemonListComponent implements OnInit, OnChanges {
               pokemon.type = pokemonType;
               let frontImg = sprites['front_default'];
               pokemon.showDefaultImage = frontImg != null;
-              this.pokemonService.getPokemonSpeciesData(pokemonResult.name)
-                .then((speciesData: any) => {
-                  let color = JSON.parse(JSON.stringify(speciesData['color'])).name;
-                  //console.log(color);
-                  pokemon.color = color;
-                  this.pokemonMap.set(pokemon.id, JSON.parse(JSON.stringify(pokemon)));
-                  this.updatePage(<number>this.page);
+              this.pokemonService.getPokemonSpeciesData(pokemon['species'].url)
+                .subscribe((speciesData: any) => {
+                  pokemon.color = speciesData['color'].name;
+                  this.pokemonMap.set(pokemon.id, pokemon);
                 })
-                .catch((error: any) => {
-                  //console.log("getPokemonSpeciesData failed for ", pokemonResult.name);
-                  let species = JSON.parse(JSON.stringify(pokemon['species']));
-                  this.pokemonService.callURL(species.url)
-                    .subscribe((response: any) =>{
-                      let color = JSON.parse(JSON.stringify(response['color'])).name;
-                      //console.log(color);
-                      pokemon.color = color;
-                      this.pokemonMap.set(pokemon.id, JSON.parse(JSON.stringify(pokemon)));
-                    });
-                });
             });
         });
       });
@@ -82,20 +71,16 @@ export class PokemonListComponent implements OnInit, OnChanges {
     return Array.from(this.pokemonMap.values());
   }
 
-  openEvolutions(pokemon: any) {
-    console.log("clicked me: ")
-  }
-
   getPokemonSprites(pokemon: any) {
     //console.log(pokemon);
-    let sprites = JSON.parse(JSON.stringify(pokemon['sprites']));
-    let otherSprites =  JSON.parse(JSON.stringify(sprites['other']));
+    let sprites = pokemon['sprites'];
+    let otherSprites =  sprites['other'];
     //console.log("getPokemonSprites");
     //console.log(sprites['front_default']);
     let frontImg = sprites['front_default'];
     this.showDefaultImage = frontImg != '';
     let shinyImg = sprites['front_shiny'];
-    let officialImg = JSON.parse(JSON.stringify(otherSprites['official-artwork'])).front_default;
+    let officialImg = otherSprites['official-artwork'].front_default;
     //console.log(officialArtwork);
     return {'front': frontImg, 'shiny': shinyImg, 'official': officialImg};
     //return [frontImg, shinyImg, officialArtwork];
@@ -105,7 +90,6 @@ export class PokemonListComponent implements OnInit, OnChanges {
     return new Map<number, any>();
   }
 
-  //KeyValue<"official" | "shiny" | "front", { official: any; shiny: any; front: any }[P]>
   showOfficialArtwork(pokemon: any) {
     //console.log("showOfficialArtwork");
     //console.log(pokemon.name);
@@ -138,7 +122,4 @@ export class PokemonListComponent implements OnInit, OnChanges {
     else return "#ffffff";
   }
 
-  updatePage(newPage: number) {
-    this.page = newPage;
-  }
 }

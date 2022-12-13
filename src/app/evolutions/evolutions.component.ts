@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from "@angular/router";
+import { AppComponent } from "../app.component";
 
 @Component({
   selector: 'app-evolutions',
@@ -9,9 +10,13 @@ import { ActivatedRoute } from "@angular/router";
 export class EvolutionsComponent implements OnInit {
 
   pokemonIDToEvolutionChainMap = new Map<number, number[]>();
+  pokemonChainID: number;
+  pokemonFamilySize: number;
 
   constructor(private route: ActivatedRoute) {
     this.generateEvolutionsMap();
+    this.pokemonChainID = 0;
+    this.pokemonFamilySize = 0;
   }
 
   ngOnInit() {
@@ -21,7 +26,12 @@ export class EvolutionsComponent implements OnInit {
         let pokemonID = <number>params['pokemonID'].split("=")[1].trim();
         if(pokemonID != null){
           console.log("chosen pokemon with ID: '" + pokemonID + "'");
-          let pokemonChainID = this.getEvolutionChainID(pokemonID);
+          this.pokemonChainID = this.getEvolutionChainID(pokemonID);
+          Array.of(this.pokemonIDToEvolutionChainMap.get(this.pokemonChainID)).forEach(x => {
+            // @ts-ignore
+            this.pokemonFamilySize = x.length;
+          })
+          console.log("chainID: ", this.pokemonChainID, " and number of pokemon in family: ", this.pokemonFamilySize);
         }
     });
   }
@@ -29,16 +39,12 @@ export class EvolutionsComponent implements OnInit {
   generateEvolutionsMap() {
     this.pokemonIDToEvolutionChainMap = new Map<number, number[]>(
       [
-        [1, [1, 2, 3]], [2, [4, 5, 6]],
-        [3, [7, 8, 9]], [4, [10, 11, 12]]
+        [1, [1, 2, 3, 10195]], [2, [4, 5, 6, 10196]],
+        [3, [7, 8, 9, 10197]], [4, [10, 11, 12]],
+        [5, [13, 14, 15]], [6, [16, 17, 18]],
+        [7, [19, 20]], [8, [21, 22]],
+        [9, [23, 24]], [10, [172, 25, 26]]
       ]);
-    // this.pokemonIDToEvolutionChainMap.set(
-    //   1, [1, 2, 3]
-    // ).set(
-    //   2, [4, 5, 6]
-    // ).set(
-    //   3, [7, 8, 9]
-    // );
   }
 
   getEvolutionChainID(pokemonID: number): number {

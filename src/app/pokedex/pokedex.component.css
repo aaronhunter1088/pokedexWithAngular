@@ -27,5 +27,10 @@
   background: transparent; /* make scrollbar transparent */
 }
 
-
-
+label {
+  display: inline-flex;
+  width: 50px;
+  text-align: center;
+  justify-content: center;
+  padding-top: 1.2em;
+}

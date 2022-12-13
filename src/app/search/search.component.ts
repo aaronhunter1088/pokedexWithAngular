@@ -1,4 +1,6 @@
 import {Component, OnInit, OnChanges, Input, HostListener} from '@angular/core';
+import {PokemonService} from "../services/pokemon.service";
+import {HttpClient} from "@angular/common/http";
 
 @Component({
   selector: 'app-search',
@@ -9,9 +11,10 @@ export class SearchComponent implements OnInit {
 
   // variables passed into team component
   pokemonIDName = '';
-  pokemon = ''; // pokemon = '';
+  //pokemon = '';
   pokemonName = '';
-  sprites = ''; // sprites: object = {};
+  sprites = {}; // sprites: object = {};
+  species = '';
   pokemonImage = '';
   pokemonID = '';
   pokemonHeight = '';
@@ -32,12 +35,10 @@ export class SearchComponent implements OnInit {
   screenHeight: number = 0;
   styleFlag: boolean = false;
 
-  constructor() {
+  constructor(private pokemonService: PokemonService) {
   }
 
-  ngOnInit(): void {
-    document.body.style.backgroundColor = "#ffffff";
-  }
+  ngOnInit(): void {}
 
   onInput(pokemonIDName: string) {
     this.pokemonIDName = pokemonIDName;
@@ -73,96 +74,68 @@ export class SearchComponent implements OnInit {
 
   getPokemonInfo() {
     this.isValidName(this.pokemonIDName);
-    const PokeAPI = require("pokeapi-js-wrapper")
-    const customOptions = {
-      protocol: "https",
-      hostName: "pokeapi.co",
-      versionPath: "/api/v2/",
-      cache: true,
-      timeout: 5 * 1000, // 5s
-      cacheImages: true
-    }
-    const Pokedex = new PokeAPI.Pokedex(customOptions);
-    this.pokemon = '';
     this.pokemonDescription = '';
     this.pokemonLocations = [];
     this.pokemonMoves = [];
-    Pokedex.getPokemonByName(this.pokemonIDName)
-      .then((response: any) => {
-        this.pokemon = JSON.parse(JSON.stringify(response));
-        //console.log("pokemon: ");
-        //console.log(this.pokemon);
-        //console.log("name: " + JSON.parse(JSON.stringify(response)).name);
-        this.pokemonName = JSON.parse(JSON.stringify(response)).name;
-        this.sprites = JSON.parse(JSON.stringify(response))['sprites'];
-        //console.log("sprites");
-        //console.log(this.sprites);
-        this.pokemonImage = JSON.parse(JSON.stringify(this.sprites)).front_default;
-        this.pokemonName = JSON.parse(JSON.stringify(this.pokemon)).name;
-        this.pokemonID = JSON.parse(JSON.stringify(this.pokemon)).id;
-        this.pokemonHeight = JSON.parse(JSON.stringify(this.pokemon)).height;
-        this.pokemonWeight = JSON.parse(JSON.stringify(this.pokemon)).weight;
+    this.pokemonService.getPokemonByName(this.pokemonIDName)
+      .then((pokemon: any) => {
+        //console.log("pokemon: ", pokemon);
+        this.pokemonName = pokemon.name;
+        //console.log("name: " + pokemon.name);
+        this.sprites = pokemon['sprites'];
+        this.species = pokemon['species'];
+        //console.log("sprites", pokemon['sprites']);
+        this.pokemonImage = pokemon['sprites']['front_default'];
+        this.pokemonName = pokemon.name;
+        this.pokemonID = pokemon.id;
+        this.pokemonHeight = pokemon.height;
+        this.pokemonWeight = pokemon.weight;
         // get and set color, and pokemon description
-        Pokedex.getPokemonSpeciesByName(this.pokemonName)
-          .then((response: any) => {
-            //console.log("pokemon species: ");
-            //console.log(response);
-            this.pokemonColor = JSON.parse(JSON.stringify(response.color)).name;
+        this.pokemonService.getPokemonSpeciesData(pokemon['species'].url)
+          .subscribe((speciesData: any) => {
+            //console.log("pokemon species: ", speciesData);
+            this.pokemonColor = speciesData['color']['name'];
             this.setBackgroundColor();
-            //console.log("pokemon descriptions: ");
-            //console.log(JSON.parse(JSON.stringify(response.flavor_text_entries)));
-            this.pokemonDescriptions = JSON.parse(JSON.stringify(response.flavor_text_entries));
-            //let randomIndex = Math.floor(Math.random() * this.pokemonDescriptions.length);
+            this.pokemonDescriptions = speciesData.flavor_text_entries;
             this.pokemonDescription = this.getEnglishDescriptions();
           });
         // parse over the types
-        this.pokemonType = JSON.parse(JSON.stringify(this.pokemon)).types;
-        //console.log("pokemonType");
-        //console.log(this.pokemonType);
+        this.pokemonType = pokemon.types;
+        //console.log("pokemonType", pokemon.types);
         if (this.pokemonType.length > 1) {
-          //console.log("more than 1 type");
           // @ts-ignore
           this.pokemonType = this.pokemonType[0].type.name[0].toUpperCase()+this.pokemonType[0].type.name.substring(1) + " and " + this.pokemonType[1].type.name[0].toUpperCase()+this.pokemonType[1].type.name.substring(1);
         } else {
-          //console.log("only 1 type");
           // @ts-ignore
           this.pokemonType = this.pokemonType[0].type.name[0].toUpperCase()+this.pokemonType[0].type.name.substring(1);
         }
         // locations
-        Pokedex.resource([
-          "/api/v2/pokemon/"+this.pokemonID+"/encounters",
-        ]).then( (locations: any) => {
-          //console.log("locations: ");
-          //console.log(locations[0]);
-          if (locations[0].length == 0) {
-            this.pokemonLocations.push("No known locations!");
-          } else {
-            for(let i=0; i<locations[0].length; i++) {
-              let location = JSON.parse(JSON.stringify(locations[0][i]));
-              //console.log("location: ");
-              let locationArea = JSON.parse(JSON.stringify(location))['location_area'];
-              //console.log(locationArea.name);
-              let names = locationArea.name.split("-")
-              let newName = '';
-              names.forEach((name: string) => {
-                name = name[0].toUpperCase() + name.substring(1);
-                newName += name + " ";
-                //console.log(newName);
+        this.pokemonService.getPokemonLocationEncounters(this.pokemonID).then(
+          (locations: any) => {
+            if (locations.length == 0) {
+              this.pokemonLocations.push("No known locations!");
+            } else {
+              locations.forEach((location: any) => {
+                let names = location['location_area']['name'].split("-")
+                let newName = '';
+                names.forEach((name: string) => {
+                  name = name[0].toUpperCase() + name.substring(1);
+                  newName += name + " ";
+                  //console.log(newName);
+                });
+                this.pokemonLocations.push(newName);
               });
-              this.pokemonLocations.push(newName);
-              //this.pokemonLocations.push(locationArea.name);
+              this.pokemonLocations.sort();
             }
-            this.pokemonLocations.sort();
-          }
-        })
+          });
         // moves
-        let allMoves = JSON.parse(JSON.stringify(this.pokemon))['moves'];
+        let allMoves = pokemon['moves'];
         //console.log("all moves: ");
         //console.log(allMoves);
         for(let i=0; i<allMoves.length; i++) {
           //console.log("move: ");
-          //console.log(JSON.parse(JSON.stringify(allMoves[i]))['move'].name);
-          let move = JSON.parse(JSON.stringify(allMoves[i]))['move'].name;
+          //console.log(allMoves[i]['move'].name);
+          let move = allMoves[i]['move'].name;
           move = move[0].toUpperCase() + move.substring(1);
           this.pokemonMoves.push(move);
         }
@@ -192,14 +165,15 @@ export class SearchComponent implements OnInit {
     let englishDescriptions: any = [];
     for(let i=0; i<this.pokemonDescriptions.length; i++) {
       // @ts-ignore
-      if (JSON.parse(JSON.stringify(this.pokemonDescriptions[i])).language.name === "en") {
+      if (this.pokemonDescriptions[i].language.name === "en") {
+        //console.log("desc: ", this.pokemonDescriptions[i]);
         englishDescriptions.push(this.pokemonDescriptions[i]);
       }
     }
     // @ts-ignore
     let randomIndex = Math.floor(Math.random() * englishDescriptions.length-1);
     if (randomIndex < 0) randomIndex = 0;
-    this.pokemonDescription = JSON.parse(JSON.stringify(englishDescriptions[randomIndex])).flavor_text;
+    this.pokemonDescription =englishDescriptions[randomIndex].flavor_text;
     //console.log(this.pokemonDescription);
     return this.pokemonDescription;
   }

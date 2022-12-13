@@ -1,41 +1,48 @@
-<pagination-controls (pageChange)="this.page=$event; pokemonMap = newMap(); getThePokemon();"></pagination-controls>
+<pagination-controls
+  style="justify-content: space-evenly;"
+  [maxSize]="this.itemsPerPage"
+  (pageChange)="this.page=$event; pokemonMap = newMap(); getThePokemon();"></pagination-controls>
 <div class="pokemon-grid">
-  <div class="box"
-       [ngStyle]="{'background-color':changeColor(pokemon.value.color)}"
-    *ngFor="let pokemon of pokemonMap | keyvalue | paginate: {itemsPerPage: 10, currentPage: this.page, totalItems: numberOfPokemon}">
-    <div id="nameAndID" style="display:inline-flex;">
-      <nav>
-        <a routerLink="/evolutions/?pokemonID={{pokemon.value.id}}">
-        <h3 id="name"
-            *ngIf="pokemon.value.id;"
-        >{{pokemon.value.name | titlecase}}</h3>
-        </a>
-      </nav>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <h3 id="idOfPokemon">ID: {{pokemon.value.id}}</h3>
-    </div>
-
-    <div id="image"
-         *ngFor="let sprites of getPokemonSprites(pokemon.value) | keyvalue;">
-      <ng-template [ngIf]="pokemon.value.showDefaultImage" [ngIfElse]="officialImage">
-        <img *ngIf="sprites.key == 'front'"
-             [src]="sprites.value" alt="pokemon"
-             (mouseover)="sprites.value = showOfficialArtwork(pokemon.value)"
-             (mouseout)="sprites.value = showFrontImage(pokemon.value);"
-        >
-      </ng-template>
-      <ng-template #officialImage>
-        <img *ngIf="sprites.key == 'official';"
-             [src]="sprites.value" alt="pokemon"
-        >
-      </ng-template>
-    </div>
-    <div id="info" style="display:inline-block;">
-      <h3 id="heightOfPokemon">Height: {{pokemon.value.height}}</h3>
-      <h3 id="weightOfPokemon">Weight: {{pokemon.value.weight}}</h3>
-      <h3 id="colorOfPokemon">Color: {{pokemon.value.color | titlecase}}</h3>
-      <h3 id="typeOfPokemon">Type: {{pokemon.value.type}}</h3>
-    </div>
+  <div
+    *ngFor="let pokemon of pokemonMap | keyvalue | paginate: {itemsPerPage: this.itemsPerPage, currentPage: this.page, totalItems: numberOfPokemon}">
+    <nav>
+      <a routerLink="/evolutions/?pokemonID={{pokemon.value.id}}" style="text-decoration: none; color: black;">
+        <div class="box"
+             [ngStyle]="{'background-color':changeColor(pokemon.value.color)}">
+          <div id="nameAndID" style="display:inline-flex;">
+            <h3 id="name"
+                *ngIf="pokemon.value.id;"
+            >{{pokemon.value.name | titlecase}}</h3>
+            <div style="display: block;">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            <h3 id="idOfPokemon">ID: {{pokemon.value.id}}</h3>
+          </div>
+          <div id="image"
+               *ngFor="let sprites of getPokemonSprites(pokemon.value) | keyvalue;">
+            <ng-template [ngIf]="pokemon.value.showDefaultImage" [ngIfElse]="officialImage">
+              <img *ngIf="sprites.key == 'front'"
+                   [src]="sprites.value" alt="pokemon"
+                   (mouseover)="sprites.value = showOfficialArtwork(pokemon.value)"
+                   (mouseout)="sprites.value = showFrontImage(pokemon.value);"
+              >
+            </ng-template>
+            <ng-template #officialImage>
+              <img *ngIf="sprites.key == 'official';"
+                   [src]="sprites.value" alt="pokemon"
+              >
+            </ng-template>
+          </div>
+          <div id="info" style="display:inline-block;">
+            <h3 id="heightOfPokemon">Height: {{pokemon.value.height}}</h3>
+            <h3 id="weightOfPokemon">Weight: {{pokemon.value.weight}}</h3>
+            <h3 id="colorOfPokemon">Color: {{pokemon.value.color | titlecase}}</h3>
+            <h3 id="typeOfPokemon">Type: {{pokemon.value.type}}</h3>
+          </div>
+        </div>
+      </a>
+    </nav>
   </div>
 </div>
-<pagination-controls (pageChange)="this.page=$event; pokemonMap = newMap(); getThePokemon();"></pagination-controls>
+<pagination-controls
+  style="justify-content: space-evenly;"
+  [maxSize]="this.itemsPerPage"
+  (pageChange)="this.page=$event; pokemonMap = newMap(); getThePokemon();"></pagination-controls>
