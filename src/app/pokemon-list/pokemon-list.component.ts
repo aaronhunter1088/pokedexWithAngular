@@ -17,6 +17,8 @@ export class PokemonListComponent implements OnInit {
   itemsPerPage = 10;
   numberOfPokemon: number = 0;
   showDefaultImage: boolean = false;
+  showGifs: boolean = false;
+  gifImagePresent: boolean = false;
 
   ngOnInit(): void {
     this.page = this.pokemonService.getSavedPage();
@@ -71,6 +73,10 @@ export class PokemonListComponent implements OnInit {
     return Array.from(this.pokemonMap.values());
   }
 
+  newMap() {
+    return new Map<number, any>();
+  }
+
   getPokemonSprites(pokemon: any) {
     //console.log(pokemon);
     let sprites = pokemon['sprites'];
@@ -81,13 +87,10 @@ export class PokemonListComponent implements OnInit {
     this.showDefaultImage = frontImg != '';
     let shinyImg = sprites['front_shiny'];
     let officialImg = otherSprites['official-artwork'].front_default;
-    //console.log(officialArtwork);
-    return {'front': frontImg, 'shiny': shinyImg, 'official': officialImg};
+    let gifImg = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
+    this.gifImagePresent = gifImg != null;
+    return {'front': frontImg, 'shiny': shinyImg, 'official': officialImg, 'gif': gifImg};
     //return [frontImg, shinyImg, officialArtwork];
-  }
-
-  newMap() {
-    return new Map<number, any>();
   }
 
   showOfficialArtwork(pokemon: any) {

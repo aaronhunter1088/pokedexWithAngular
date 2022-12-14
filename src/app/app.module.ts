@@ -7,6 +7,8 @@ import { PokedexComponent } from './pokedex/pokedex.component';
 import { NgxPaginationModule} from  'ngx-pagination';
 import { HttpClientModule } from "@angular/common/http";
 import { PokemonListComponent } from './pokemon-list/pokemon-list.component';
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { PokemonListComponent } from './pokemon-list/pokemon-list.component';
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    MatSlideToggleModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

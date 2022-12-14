@@ -82,10 +82,11 @@ export class SearchComponent implements OnInit {
         //console.log("pokemon: ", pokemon);
         this.pokemonName = pokemon.name;
         //console.log("name: " + pokemon.name);
-        this.sprites = pokemon['sprites'];
+        this.sprites = <object>pokemon['sprites'];
         this.species = pokemon['species'];
         //console.log("sprites", pokemon['sprites']);
         this.pokemonImage = pokemon['sprites']['front_default'];
+        //this.pokemonImage = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
         this.pokemonName = pokemon.name;
         this.pokemonID = pokemon.id;
         this.pokemonHeight = pokemon.height;

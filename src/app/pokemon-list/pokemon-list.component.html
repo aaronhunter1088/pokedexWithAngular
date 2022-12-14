@@ -2,6 +2,11 @@
   style="justify-content: space-evenly;"
   [maxSize]="this.itemsPerPage"
   (pageChange)="this.page=$event; pokemonMap = newMap(); getThePokemon();"></pagination-controls>
+<section>
+  <mat-slide-toggle (click)="showGifs = !showGifs; showDefaultImage = !showDefaultImage;">
+    Show GIFs
+  </mat-slide-toggle>
+</section>
 <div class="pokemon-grid">
   <div
     *ngFor="let pokemon of pokemonMap | keyvalue | paginate: {itemsPerPage: this.itemsPerPage, currentPage: this.page, totalItems: numberOfPokemon}">
@@ -18,16 +23,20 @@
           </div>
           <div id="image"
                *ngFor="let sprites of getPokemonSprites(pokemon.value) | keyvalue;">
-            <ng-template [ngIf]="pokemon.value.showDefaultImage" [ngIfElse]="officialImage">
+            <ng-template [ngIf]="showDefaultImage && !showGifs" [ngIfElse]="gifImage"> <!-- [ngIfElse]=officialImage -->
               <img *ngIf="sprites.key == 'front'"
-                   [src]="sprites.value" alt="pokemon"
+                   [src]="sprites.value" alt="{{pokemon.value.name}}-default"
                    (mouseover)="sprites.value = showOfficialArtwork(pokemon.value)"
                    (mouseout)="sprites.value = showFrontImage(pokemon.value);"
               >
             </ng-template>
-            <ng-template #officialImage>
-              <img *ngIf="sprites.key == 'official';"
-                   [src]="sprites.value" alt="pokemon"
+            <ng-template #gifImage
+              [ngIf]="!showDefaultImage && showGifs && gifImagePresent">
+              <img *ngIf="sprites.key == 'gif' && gifImagePresent;"
+                   [src]="sprites.value" alt="{{pokemon.value.name}}-gif"
+              >
+              <img *ngIf="sprites.key == 'official' && showGifs && !gifImagePresent;"
+                   [src]="sprites.value" alt="{{pokemon.value.name}}-official"
               >
             </ng-template>
           </div>
