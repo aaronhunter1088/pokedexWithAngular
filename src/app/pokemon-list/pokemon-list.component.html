@@ -1,15 +1,21 @@
 <pagination-controls
   style="justify-content: space-evenly;"
   [maxSize]="this.itemsPerPage"
-  (pageChange)="this.page=$event; pokemonMap = newMap(); getThePokemon();"></pagination-controls>
-<section>
+  (pageChange)="this.page=$event; pokemonMap = newMap(); getThePokemon();">
+</pagination-controls>
+<div style="display:inline-flex;">
   <mat-slide-toggle (click)="showGifs = !showGifs; showDefaultImage = !showDefaultImage;">
     Show GIFs
   </mat-slide-toggle>
-</section>
+  <p style="padding-right: 50px;"></p>
+  <input type="text" placeholder="Jump to Page #" style="width:100px;"
+         #pageNumber
+         (keydown.enter)="setNewPageNumber(pageNumber.value); pageNumber.value = '';"/>
+</div>
+
 <div class="pokemon-grid">
   <div
-    *ngFor="let pokemon of pokemonMap | keyvalue | paginate: {itemsPerPage: this.itemsPerPage, currentPage: this.page, totalItems: numberOfPokemon}">
+    *ngFor="let pokemon of pokemonMap | keyvalue | paginate: {itemsPerPage: this.itemsPerPage, currentPage: this.page, totalItems: this.numberOfPokemon}">
     <nav>
       <a routerLink="/evolutions/?pokemonID={{pokemon.value.id}}" style="text-decoration: none; color: black;">
         <div class="box"
@@ -23,7 +29,7 @@
           </div>
           <div id="image"
                *ngFor="let sprites of getPokemonSprites(pokemon.value) | keyvalue;">
-            <ng-template [ngIf]="showDefaultImage && !showGifs" [ngIfElse]="gifImage"> <!-- [ngIfElse]=officialImage -->
+            <ng-template [ngIf]="showDefaultImage && !showGifs" [ngIfElse]="gifImage">
               <img *ngIf="sprites.key == 'front'"
                    [src]="sprites.value" alt="{{pokemon.value.name}}-default"
                    (mouseover)="sprites.value = showOfficialArtwork(pokemon.value)"

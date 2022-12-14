@@ -1,6 +1,5 @@
-import {Component, OnInit, OnChanges, Input, HostListener} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {PokemonService} from "../services/pokemon.service";
-import {HttpClient} from "@angular/common/http";
 
 @Component({
   selector: 'app-search',
@@ -36,9 +35,11 @@ export class SearchComponent implements OnInit {
   styleFlag: boolean = false;
 
   constructor(private pokemonService: PokemonService) {
+
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
   onInput(pokemonIDName: string) {
     this.pokemonIDName = pokemonIDName;
@@ -46,7 +47,8 @@ export class SearchComponent implements OnInit {
 
   isValidName(nameOrId: string) {
     let code = 0;
-    fetch("https://pokeapi.co/api/v2/pokemon/"+nameOrId)
+    this.pokemonIDName = nameOrId.toLowerCase();
+    fetch("https://pokeapi.co/api/v2/pokemon/"+this.pokemonIDName)
       .then((response) => {
         if (response.ok && nameOrId.length > 0) {
           code = 200;

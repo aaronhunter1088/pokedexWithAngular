@@ -10,9 +10,11 @@
     type="text"
     style="vertical-align: middle; justify-content: center; height:50px; width:150px; font-size: 15px;"
     placeholder="Pokemon Name/ID"
+    tabindex="0"
+    autofocus
     [value]="pokemonIDName"
     (input)="onInput(pokemonNameIDInput.value)"
-    (keydown.enter)="getPokemonInfo()"/>
+    (keydown.enter)="getPokemonInfo(); pokemonNameIDInput.value = '';"/>
   <img (click)="getPokemonInfo()"
        src="./assets/images/pokeball1.jpg"
        alt="Get Info"

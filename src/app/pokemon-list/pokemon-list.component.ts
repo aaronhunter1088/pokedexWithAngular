@@ -14,6 +14,7 @@ export class PokemonListComponent implements OnInit {
 
   pokemonMap = new Map<number, any>();
   page: number = 1;
+  blankPageNumber: string = ''
   itemsPerPage = 10;
   numberOfPokemon: number = 0;
   showDefaultImage: boolean = false;
@@ -24,6 +25,10 @@ export class PokemonListComponent implements OnInit {
     this.page = this.pokemonService.getSavedPage();
     this.itemsPerPage = 10;
     this.getThePokemon();
+  }
+
+  ngOnReload() {
+
   }
 
   ngOnDestroy() {
@@ -67,6 +72,7 @@ export class PokemonListComponent implements OnInit {
             });
         });
       });
+    this.blankPageNumber = '';
   }
 
   getPokemonMapValues() {
@@ -125,4 +131,10 @@ export class PokemonListComponent implements OnInit {
     else return "#ffffff";
   }
 
+  setNewPageNumber(newPage: string) {
+    this.page = Number.parseInt(newPage);
+    this.getThePokemon();
+    this.pokemonService.saveCurrentPage(this.page);
+    this.blankPageNumber = '';
+  }
 }
