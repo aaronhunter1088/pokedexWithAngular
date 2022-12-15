@@ -4,7 +4,7 @@
   (pageChange)="this.page=$event; pokemonMap = newMap(); getThePokemon();">
 </pagination-controls>
 <div style="display:inline-flex;">
-  <mat-slide-toggle (click)="showGifs = !showGifs; showDefaultImage = !showDefaultImage;">
+  <mat-slide-toggle (click)="showGifs = !showGifs;">
     Show GIFs
   </mat-slide-toggle>
   <p style="padding-right: 50px;"></p>
@@ -27,21 +27,24 @@
             <div style="display: block;">&nbsp;&nbsp;&nbsp;&nbsp;</div>
             <h3 id="idOfPokemon">ID: {{pokemon.value.id}}</h3>
           </div>
+          <!-- Rework logic -->
           <div id="image"
                *ngFor="let sprites of getPokemonSprites(pokemon.value) | keyvalue;">
-            <ng-template [ngIf]="showDefaultImage && !showGifs" [ngIfElse]="gifImage">
-              <img *ngIf="sprites.key == 'front'"
+            <ng-template [ngIf]="defaultImagePresent" [ngIfElse]="officialImage">
+              <img *ngIf="sprites.key == 'front' && !showGifs"
                    [src]="sprites.value" alt="{{pokemon.value.name}}-default"
                    (mouseover)="sprites.value = showOfficialArtwork(pokemon.value)"
                    (mouseout)="sprites.value = showFrontImage(pokemon.value);"
               >
-            </ng-template>
-            <ng-template #gifImage
-              [ngIf]="!showDefaultImage && showGifs && gifImagePresent">
-              <img *ngIf="sprites.key == 'gif' && gifImagePresent;"
+              <img *ngIf="sprites.key == 'gif' && gifImagePresent && showGifs;"
                    [src]="sprites.value" alt="{{pokemon.value.name}}-gif"
               >
-              <img *ngIf="sprites.key == 'official' && showGifs && !gifImagePresent;"
+              <img *ngIf="sprites.key == 'official' && !gifImagePresent && showGifs;"
+                   [src]="sprites.value" alt="{{pokemon.value.name}}-official"
+              >
+            </ng-template>
+            <ng-template #officialImage>
+              <img *ngIf="sprites.key == 'official';"
                    [src]="sprites.value" alt="{{pokemon.value.name}}-official"
               >
             </ng-template>

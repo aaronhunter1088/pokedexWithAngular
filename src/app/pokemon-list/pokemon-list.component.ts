@@ -17,7 +17,7 @@ export class PokemonListComponent implements OnInit {
   blankPageNumber: string = ''
   itemsPerPage = 10;
   numberOfPokemon: number = 0;
-  showDefaultImage: boolean = false;
+  defaultImagePresent: boolean = false;
   showGifs: boolean = false;
   gifImagePresent: boolean = false;
 
@@ -90,7 +90,7 @@ export class PokemonListComponent implements OnInit {
     //console.log("getPokemonSprites");
     //console.log(sprites['front_default']);
     let frontImg = sprites['front_default'];
-    this.showDefaultImage = frontImg != '';
+    this.defaultImagePresent = frontImg != null;
     let shinyImg = sprites['front_shiny'];
     let officialImg = otherSprites['official-artwork'].front_default;
     let gifImg = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
@@ -104,7 +104,7 @@ export class PokemonListComponent implements OnInit {
     //console.log(pokemon.name);
     let images = this.getPokemonSprites(pokemon);
     //console.log(this.officialImg);
-    this.showDefaultImage = true;
+    this.defaultImagePresent = true;
     return images.official;
   }
 
@@ -113,7 +113,7 @@ export class PokemonListComponent implements OnInit {
     //console.log(pokemon.name);
     let images = this.getPokemonSprites(pokemon);
     //console.log(this.frontImg);
-    this.showDefaultImage = false;
+    this.defaultImagePresent = false;
     return images.front;
   }
 
