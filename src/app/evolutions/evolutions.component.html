@@ -1,7 +1,28 @@
 <h1>evolutions page in the works!</h1>
-<a routerLink="/">
+<a routerLink="/"> <!-- goToPreviousPage(); -->
   <img alt="Go to Home"
        src="./assets/images/arrow-back.jpg"
        title="Click here to return to Homepage"
        style="vertical-align:middle; width:50px; height:50px;">
 </a>
+<br/>
+<div style="display:inline-flex; justify-content: center; width:100%; height:100%; ">
+  <div class="box"
+       *ngFor="let ids of pokemonFamilyIDs;"
+  >
+    <div class="pokemon-grid"
+         *ngFor="let id of ids; let isNotLast = last;"
+    >
+      <div class="box" style="background-color: aqua;">
+        <h3 id="idOfPokemon">ID: {{id}}</h3>
+        <h3>Another Option</h3>
+      </div>
+      <div *ngIf="!isNotLast" style="padding-top:20%; padding-bottom:10%; text-align:center; justify-content:center;">
+        <img
+             style="width:25px; height:25px;"
+             src="./assets/images/pokeball1.jpg"
+        >
+      </div>
+    </div>
+  </div>
+</div>

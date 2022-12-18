@@ -5,3 +5,7 @@ src {
 body {
   background-color: whitesmoke;
 }
+
+img {
+  cursor: zoom-in;
+}

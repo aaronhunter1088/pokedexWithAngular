@@ -4,7 +4,7 @@
   (pageChange)="this.page=$event; pokemonMap = newMap(); getThePokemon();">
 </pagination-controls>
 <div style="display:inline-flex;">
-  <mat-slide-toggle (click)="showGifs = !showGifs;">
+  <mat-slide-toggle (click)="showGifs = !showGifs;" title="If GIF is not present, official artwork will show!">
     Show GIFs
   </mat-slide-toggle>
   <p style="padding-right: 50px;"></p>
@@ -27,7 +27,6 @@
             <div style="display: block;">&nbsp;&nbsp;&nbsp;&nbsp;</div>
             <h3 id="idOfPokemon">ID: {{pokemon.value.id}}</h3>
           </div>
-          <!-- Rework logic -->
           <div id="image"
                *ngFor="let sprites of getPokemonSprites(pokemon.value) | keyvalue;">
             <ng-template [ngIf]="defaultImagePresent" [ngIfElse]="officialImage">
@@ -36,10 +35,10 @@
                    (mouseover)="sprites.value = showOfficialArtwork(pokemon.value)"
                    (mouseout)="sprites.value = showFrontImage(pokemon.value);"
               >
-              <img *ngIf="sprites.key == 'gif' && gifImagePresent && showGifs;"
+              <img *ngIf="sprites.key == 'gif' && showGifs && gifImagePresent;"
                    [src]="sprites.value" alt="{{pokemon.value.name}}-gif"
               >
-              <img *ngIf="sprites.key == 'official' && !gifImagePresent && showGifs;"
+              <img *ngIf="sprites.key == 'official' && showGifs && !gifImagePresent;"
                    [src]="sprites.value" alt="{{pokemon.value.name}}-official"
               >
             </ng-template>

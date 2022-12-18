@@ -137,4 +137,8 @@ export class PokemonListComponent implements OnInit {
     this.pokemonService.saveCurrentPage(this.page);
     this.blankPageNumber = '';
   }
+
+  displayGifHelpText() {
+    return ;
+  }
 }
