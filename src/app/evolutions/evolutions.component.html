@@ -8,9 +8,9 @@
 <br/>
 <div style="display:inline-flex; justify-content: center; width:100%; height:100%; ">
   <div class="box"
-       *ngFor="let list of pokemonFamily; ">
+       *ngFor="let list of pokemonFamily;">
     <div class="pokemon-grid"
-         *ngFor="let pokemon of list | orderBy:'pokemon.id'; let isNotLast = last;"
+         *ngFor="let pokemon of list | sort:'{{pokemon.id}}'; let isNotLast = last;"
     >
       <div
         class="box" style="background-color: aqua;">

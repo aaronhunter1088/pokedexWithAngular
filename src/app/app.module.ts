@@ -10,6 +10,7 @@ import { PokemonListComponent } from './pokemon-list/pokemon-list.component';
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import {OrderModule} from "ngx-order-pipe";
+import { ArraySortPipe } from './array-sort.pipe';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import {OrderModule} from "ngx-order-pipe";
     PokedexComponent,
     PokemonListComponent,
     routingComponents,
+    ArraySortPipe,
   ],
     imports: [
         BrowserModule,

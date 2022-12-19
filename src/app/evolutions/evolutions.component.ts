@@ -53,6 +53,9 @@ export class EvolutionsComponent implements OnInit {
                     pokemonList.push(pokemon);
                   });
                 this.pokemonFamilySize += 1;
+                pokemonList.sort(function (a, b) {
+                  return b.id-a.id;
+                });
                 this.pokemonFamily.push(pokemonList);
               });
             });
@@ -627,4 +630,15 @@ export class EvolutionsComponent implements OnInit {
     else return "#ffffff";
   }
 
+  theNewMethod(obj1:any, obj2:any) {
+    if (obj1.id > obj2.id) {
+      return 1;
+    }
+
+    if (obj1.cognome < obj2.cognome) {
+      return -1;
+    }
+
+    return 0;
+  }
 }
