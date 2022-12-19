@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from "@angular/router";
+import {PokemonService} from "../services/pokemon.service";
 
 @Component({
   selector: 'app-evolutions',
@@ -11,10 +12,12 @@ export class EvolutionsComponent implements OnInit {
   pokemonIDToEvolutionChainMap = new Map<number, number[][]>();
   pokemonChainID: number;
   pokemonFamilyIDs: number[][] = [];
-  pokemonFamily: any[] = [];
+  pokemonFamily: any[][] = [];
+  //pokemonList: any[] = [];
+  pokemonMap = new Map;
   pokemonFamilySize: number;
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
     this.generateEvolutionsMap();
     this.pokemonChainID = 0;
     this.pokemonFamilySize = 0;
@@ -25,30 +28,36 @@ export class EvolutionsComponent implements OnInit {
     this.route.params
       .subscribe(params => {
         let pokemonID = <number>params['pokemonID'].split("=")[1].trim();
-        if(pokemonID != null){
+        if(pokemonID != null) {
           console.log("chosen pokemon with ID: '" + pokemonID + "'");
           this.pokemonChainID = this.getEvolutionChainID(pokemonID);
           Array.of(this.pokemonIDToEvolutionChainMap.get(this.pokemonChainID)).forEach(family => {
             // @ts-ignore
-            this.pokemonFamilyIDs = family;
+            this.pokemonFamilyIDs = family; // a list of list of IDs [ [1], [2], [3,10033,10195] ]
+            console.log("familyFirst:",family);
+
             // @ts-ignore
-            this.pokemonFamilyIDs.forEach(id => {
-              console.log("familyID: ", id)
-              id.forEach((value: any) => {
+            this.pokemonFamilyIDs.forEach(idList => {
+              console.log("IDList: ", idList)
+              let pokemon = {};
+              let pokemonList: any[] = [];
+              idList.forEach((id: any) => {
+                console.log("id: ",id);
+                pokemonList = [];
+                this.pokemonService.getPokemonByName(id)
+                  .then((pokemonResponse: any) => {
+                    pokemon = {
+                      id: pokemonResponse.id,
+                      name: pokemonResponse.name
+                    }
+                    pokemonList.push(pokemon);
+                  });
                 this.pokemonFamilySize += 1;
+                this.pokemonFamily.push(pokemonList);
               });
             });
           })
           console.log("chainID: ", this.pokemonChainID, " and # of pokemon in family: ", this.pokemonFamilySize);
-          // @ts-ignore
-          this.pokemonFamilyIDs.forEach(id => {
-            const pokemon = {
-              name: 'NAME',
-              color : 'green',
-              id : id
-            };
-            this.pokemonFamily.push(pokemon);
-          });
         }
     });
   }
@@ -617,4 +626,5 @@ export class EvolutionsComponent implements OnInit {
     else if (pokemonColor === "gray" || pokemonColor === "grey") { return "#8f8b8b"}
     else return "#ffffff";
   }
+
 }

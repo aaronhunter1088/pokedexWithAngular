@@ -21,7 +21,7 @@ export class PokemonService {
     return this.Pokedex.getPokemonsList(interval);
   }
 
-  getPokemonByName(pokemonIDName: string) {
+  getPokemonByName(pokemonIDName: string | number) {
     return this.Pokedex.getPokemonByName(pokemonIDName);
   }
 
