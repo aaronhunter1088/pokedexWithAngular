@@ -68,7 +68,7 @@ export class PokemonListComponent implements OnInit {
                 .subscribe((speciesData: any) => {
                   pokemon.color = speciesData['color'].name;
                   this.pokemonMap.set(pokemon.id, pokemon);
-                })
+                });
             });
         });
       });

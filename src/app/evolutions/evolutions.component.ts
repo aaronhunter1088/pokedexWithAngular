@@ -13,9 +13,11 @@ export class EvolutionsComponent implements OnInit {
   pokemonChainID: number;
   pokemonFamilyIDs: number[][] = [];
   pokemonFamily: any[][] = [];
-  //pokemonList: any[] = [];
   pokemonMap = new Map;
   pokemonFamilySize: number;
+  defaultImagePresent: boolean = false;
+  gifImagePresent: boolean = false;
+  sprites: any = {};
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
     this.generateEvolutionsMap();
@@ -35,7 +37,6 @@ export class EvolutionsComponent implements OnInit {
             // @ts-ignore
             this.pokemonFamilyIDs = family; // a list of list of IDs [ [1], [2], [3,10033,10195] ]
             console.log("familyFirst:",family);
-
             // @ts-ignore
             this.pokemonFamilyIDs.forEach(idList => {
               console.log("IDList: ", idList)
@@ -46,11 +47,38 @@ export class EvolutionsComponent implements OnInit {
                 pokemonList = [];
                 this.pokemonService.getPokemonByName(id)
                   .then((pokemonResponse: any) => {
-                    pokemon = {
-                      id: pokemonResponse.id,
-                      name: pokemonResponse.name
-                    }
-                    pokemonList.push(pokemon);
+                    let types = pokemonResponse.types;
+                    this.pokemonService.getPokemonSpeciesData(pokemonResponse['species'].url)
+                      .subscribe((speciesData: any) => {
+                        let pokemonType = '';
+                        if (types.length > 1)
+                        {
+                          pokemonType = types[0].type.name[0].toUpperCase()+types[0].type.name.substring(1) + " & " + types[1].type.name[0].toUpperCase()+types[1].type.name.substring(1);
+                        }
+                        else
+                        {
+                          pokemonType = types[0].type.name[0].toUpperCase()+types[0].type.name.substring(1);
+                        }
+                        let sprites = pokemonResponse['sprites'];
+                        let otherSprites = sprites['other'];
+                        console.log("getPokemonSpritesEvolutions");
+                        console.log(sprites['front_default']);
+                        let frontImg = sprites['front_default'];
+                        this.defaultImagePresent = frontImg != null;
+                        let shinyImg = sprites['front_shiny'];
+                        let officialImg = otherSprites['official-artwork'].front_default;
+                        let gifImg = pokemonResponse['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
+                        pokemon = {
+                          id: pokemonResponse.id,
+                          name: pokemonResponse.name,
+                          height: pokemonResponse.height,
+                          weight: pokemonResponse.weight,
+                          color: speciesData['color'].name,
+                          type: pokemonType,
+                          photo: this.defaultImagePresent ? frontImg : officialImg
+                        }
+                        pokemonList.push(pokemon);
+                      });
                   });
                 this.pokemonFamilySize += 1;
                 pokemonList.sort(function (a, b) {
@@ -77,8 +105,8 @@ export class EvolutionsComponent implements OnInit {
     // );
     this.pokemonIDToEvolutionChainMap = new Map<number, number[][]>([
       [1, [[1], [2], [3,10033,10195] ]], // bulbasaur, ivysaur, venusaur, venusaur-mega, venusaur-gmax
-      [2, [[4], [5], [6,10036,10196] ]], // squirtle, wartortle, blastoise, blastoise-mega, blastoise-gmax
-      [3, [[7], [8], [9,10034,10035,10197] ]], // charmander, charmeleon, charizard, charizard-mega-x, charizard-mega-y charizard-gmax
+      [2, [[4], [5], [6,10034,10035,10196] ]], // squirtle, wartortle, blastoise, blastoise-mega, blastoise-gmax
+      [3, [[7], [8], [9,10036,10197] ]], // charmander, charmeleon, charizard, charizard-mega-x, charizard-mega-y charizard-gmax
       [4, [[10], [11], [12,10198] ]], // caterpie, metapod, butterfree, butterfree-gmax
       [5, [[13], [14], [15,10090] ]], // weedle, kakuna, beedrill, beedrill-mega
       [6, [[16], [17], [18,10073] ]], // pidgey, pideotto, pideot, pideot-mega
@@ -600,20 +628,27 @@ export class EvolutionsComponent implements OnInit {
     return keyToReturn;
   }
 
-  getPokemonSprites(pokemon: any) {
-    //console.log(pokemon);
-    let sprites = pokemon['sprites'];
-    let otherSprites =  sprites['other'];
-    //console.log("getPokemonSprites");
-    //console.log(sprites['front_default']);
-    let frontImg = sprites['front_default'];
-    let defaultImagePresent = frontImg != null;
-    let shinyImg = sprites['front_shiny'];
-    let officialImg = otherSprites['official-artwork'].front_default;
-    let gifImg = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
-    let gifImagePresent = gifImg != null;
-    return {'front': frontImg, 'shiny': shinyImg, 'official': officialImg, 'gif': gifImg};
-    //return [frontImg, shinyImg, officialArtwork];
+  getPokemonSprites(pokemonID: any): any {
+    this.pokemonService.getPokemonByName(pokemonID)
+      .then((pokemon: any) => {
+        let sprites = pokemon['sprites'];
+        let otherSprites = sprites['other'];
+        console.log("getPokemonSpritesEvolutions");
+        console.log(sprites['front_default']);
+        let frontImg = sprites['front_default'];
+        this.defaultImagePresent = frontImg != null;
+        let shinyImg = sprites['front_shiny'];
+        let officialImg = otherSprites['official-artwork'].front_default;
+        let gifImg = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
+        this.gifImagePresent = gifImg != null;
+        this.sprites = {
+          front: frontImg,
+          shiny: shinyImg,
+          official: officialImg,
+          gif: gifImg
+        };
+      });
+    console.log("theSprites: ", this.sprites);
   }
 
   changeColor(pokemonColor: string): string {
