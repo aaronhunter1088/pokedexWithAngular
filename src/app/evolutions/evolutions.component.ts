@@ -18,11 +18,14 @@ export class EvolutionsComponent implements OnInit {
   defaultImagePresent: boolean = false;
   gifImagePresent: boolean = false;
   sprites: any = {};
+  stages: number[] = [];
+  stage: number;
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
     this.generateEvolutionsMap();
     this.pokemonChainID = 0;
     this.pokemonFamilySize = 0;
+    this.stage = 0;
   }
 
   ngOnInit() {
@@ -37,9 +40,11 @@ export class EvolutionsComponent implements OnInit {
             // @ts-ignore
             this.pokemonFamilyIDs = family; // a list of list of IDs [ [1], [2], [3,10033,10195] ]
             console.log("familyFirst:",family);
+            console.log("stages: ", this.pokemonFamilyIDs.length);
             // @ts-ignore
             this.pokemonFamilyIDs.forEach(idList => {
               console.log("IDList: ", idList)
+              this.stages.push(++this.stage);
               let pokemon = {};
               let pokemonList: any[] = [];
               idList.forEach((id: any) => {
@@ -61,8 +66,8 @@ export class EvolutionsComponent implements OnInit {
                         }
                         let sprites = pokemonResponse['sprites'];
                         let otherSprites = sprites['other'];
-                        console.log("getPokemonSpritesEvolutions");
-                        console.log(sprites['front_default']);
+                        //console.log("getPokemonSpritesEvolutions");
+                        //console.log(sprites['front_default']);
                         let frontImg = sprites['front_default'];
                         this.defaultImagePresent = frontImg != null;
                         let shinyImg = sprites['front_shiny'];
