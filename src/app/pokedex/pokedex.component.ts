@@ -29,6 +29,9 @@ export class PokedexComponent implements OnInit, OnChanges {
   screenWidth: number = 0;
   screenHeight: number = 0;
   styleFlag: boolean = false;
+  showGifs: boolean = false;
+  regularImage: string = '';
+  gifImage: string = '';
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
   }
@@ -59,7 +62,8 @@ export class PokedexComponent implements OnInit, OnChanges {
               let species = pokemon['species'];
               //console.log("sprites", pokemon['sprites']);
               this.pokemonImage = pokemon['sprites']['front_default'];
-              //this.pokemonImage = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
+              this.regularImage = this.pokemonImage;
+              this.gifImage = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
               this.pokemonName = pokemon.name;
               this.pokemonID = pokemon.id;
               this.pokemonHeight = pokemon.height;
@@ -118,8 +122,7 @@ export class PokedexComponent implements OnInit, OnChanges {
             .catch((error: any) => {
               console.log("Couldn't get Pokemon info with: '" + this.pokemonID + "'");
               console.log(error);
-            });
-          //this.getThePokemonFamily();
+            })
         }
         else {
           console.log("searching for a new pokemon");
@@ -163,6 +166,8 @@ export class PokedexComponent implements OnInit, OnChanges {
         document.getElementById('defaultImgBtn').style.fontWeight = this.bold;
         // @ts-ignore
         document.getElementById('shinyImgBtn').style.fontWeight = this.normal;
+        // @ts-ignore
+        document.getElementById('gifImgBtn').style.fontWeight = this.normal;
         break;
       }
       case 'shiny' : {
@@ -174,6 +179,21 @@ export class PokedexComponent implements OnInit, OnChanges {
         document.getElementById('defaultImgBtn').style.fontWeight = this.normal;
         // @ts-ignore
         document.getElementById('shinyImgBtn').style.fontWeight = this.bold;
+        // @ts-ignore
+        document.getElementById('gifImgBtn').style.fontWeight = this.normal;
+        break;
+      }
+      case 'gif' : {
+        this.pokemonImage = JSON.parse(JSON.stringify(this.sprites))['versions']['generation-v']['black-white']['animated'].front_default;
+        if (this.pokemonImage === null) {
+          this.pokemonImage = "./assets/images/pokeball1.jpg";
+        }
+        // @ts-ignore
+        document.getElementById('defaultImgBtn').style.fontWeight = this.normal;
+        // @ts-ignore
+        document.getElementById('shinyImgBtn').style.fontWeight = this.normal;
+        // @ts-ignore
+        document.getElementById('gifImgBtn').style.fontWeight = this.bold;
         break;
       }
       default : {

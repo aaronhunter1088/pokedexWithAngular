@@ -3,7 +3,7 @@
   grid-gap: 15px;
   padding: 20px;
   /*grid-template-columns: repeat(auto-fill, minmax(25%, 1fr));*/
-  grid-template-columns: 200px;
+  grid-template-columns: 300px;
 }
 
 .pokemon-grid .box {

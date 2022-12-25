@@ -8,25 +8,26 @@
             <img alt="Go to Home"
                  src="./assets/images/arrow-back.jpg"
                  title="Click here to return to Homepage"
-                 style="vertical-align:middle;
-                        width:50px; height:50px;
+                 style="width:50px; height:50px;
                         mix-blend-mode:darken;">
           </a>
         </div>
-        <div id="mainName" style="float:initial;justify-content:center;padding-top:2%;padding-right:10%;">
+        <div id="mainName" style="justify-content:center;padding-top:2%;padding-right:10%;">
           <h1 id="infoTitle">{{pokemonName | titlecase}}</h1>
         </div>
       </div>
-      <div id="imageOfPokemon">
+      <div id="imageOfPokemon" style="justify-content:center;display:block;">
         <img id="image" alt="pokemon" src="{{pokemonImage}}" width="250" height="250"/>
-        <div id="photoButtonsDiv" style="justify-content:center;text-align:center;">
-          <div style="float:left;padding-left:28%;">
-            <button id="defaultImgBtn" class="tab" (click)="showImage('default')">Show Default</button>
-          </div>
-          &nbsp;&nbsp;&nbsp;&nbsp;
-          <div style="float:right;padding-right:28%;">
-            <button id="shinyImgBtn" class="tab" (click)="showImage('shiny')">Show Shiny</button>
-          </div>
+      </div>
+      <div id="photoButtonsDiv" style="justify-content:center;text-align:center;display:inline-flex;">
+        <div style="">
+          <button id="defaultImgBtn" class="tab" (click)="showImage('default')">Show Default</button>
+        </div>
+        <div style="">
+          <button id="shinyImgBtn" class="tab" (click)="showImage('shiny')">Show Shiny</button>
+        </div>
+        <div style="">
+          <button id="gifImgBtn" class="tab" (click)="showImage('gif')">Show Gif</button>
         </div>
       </div>
     </div>
@@ -38,22 +39,18 @@
       </div>
       <br>
       <div id="hAndW" style="display:inline-flex;">
-        <label for="heightOfPokemon">Height:</label> <h3 id="heightOfPokemon">{{pokemonHeight}}</h3> &nbsp;
-        <label for="weightOfPokemon">Weight:</label> <h3 id="weightOfPokemon">{{pokemonWeight}}</h3>
+        <h3 id="heightOfPokemon">Height: {{pokemonHeight}}</h3> &nbsp;&nbsp;&nbsp;&nbsp;
+        <h3 id="weightOfPokemon">Weight: {{pokemonWeight}}</h3>
       </div>
       <br>
       <div id="colorAndType" style="display:inline-flex;">
-        <label for="colorOfPokemon">Color:</label> <h3 id="colorOfPokemon">{{pokemonColor | titlecase}}</h3> &nbsp;
-        <label for="typeOfPokemon">Type:</label> <h3 id="typeOfPokemon">{{pokemonType}}</h3>
+        <h3 id="colorOfPokemon">Color: {{pokemonColor | titlecase}}</h3> &nbsp;&nbsp;&nbsp;&nbsp;
+        <h3 id="typeOfPokemon">Type: {{pokemonType}}</h3>
       </div>
       <div style="display: flow;">
         <button id="descriptionBtn" class="tab" (click)="showDescription()">Description</button>
         <button id="locationsBtn" class="tab" (click)="showLocations()">Locations</button>
         <button id="movesBtn" class="tab" (click)="showMoves()">Moves</button>
-        <!--<button id="descTabBtn" class="tab" onclick="showDivAndBoldText('descriptionDiv');">Description</button>-->
-        <!--<button id="locTabBtn" class="tab" onclick="showDivAndBoldText('locationsDiv')">Location</button>-->
-        <!--<button id="movesTabBtn" class="tab" onclick="showDivAndBoldText('movesDiv')">Moves</button>-->
-        <!--<button id="berriesTabBtn" class="tab" onclick="showDivAndBoldText('berriesDiv')">Berries</button>-->
       </div>
       <br>
       <div
@@ -64,7 +61,7 @@
       <div
         *ngIf="locationsDiv"
         id="locationsDiv"
-        style="overflow-y: scroll; overflow-x: hidden; height:100px;">
+        style="overflow-y: scroll; overflow-x: hidden; height:200px;">
         <h3
           id="locations"
           class="listStyle"
@@ -74,7 +71,7 @@
       <div
         *ngIf="movesDiv"
         id="movesDiv"
-        style="overflow-y: scroll; overflow-x: hidden; height:100px;">
+        style="overflow-y: scroll; overflow-x: hidden; height:200px;">
         <h3
           id="moves"
           class="listStyle"
@@ -84,7 +81,5 @@
     </div>
   </div>
 </div>
-
 <!-- Display evolutions here -->
-<h2>Evolutions</h2>
 <app-evolutions></app-evolutions>
