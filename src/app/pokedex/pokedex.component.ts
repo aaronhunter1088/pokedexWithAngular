@@ -1,6 +1,7 @@
 import {Component, OnInit, OnChanges, Input, HostListener} from '@angular/core';
 import {PokemonService} from "../services/pokemon.service";
 import {HttpClient} from "@angular/common/http";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-pokedex',
@@ -8,11 +9,10 @@ import {HttpClient} from "@angular/common/http";
   styleUrls: ['./pokedex.component.css']
 })
 export class PokedexComponent implements OnInit, OnChanges {
-  //@Input() pokemon = {};
   @Input() sprites = {};
   @Input() pokemonImage = '';
   @Input() pokemonName = '';
-  @Input() pokemonID = '';
+  @Input() pokemonID: string | number  = '';
   @Input() pokemonHeight = '';
   @Input() pokemonWeight = '';
   @Input() pokemonColor = '';
@@ -30,7 +30,7 @@ export class PokedexComponent implements OnInit, OnChanges {
   screenHeight: number = 0;
   styleFlag: boolean = false;
 
-  constructor(private pokemonService: PokemonService, private http: HttpClient) {
+  constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
   }
 
   ngOnInit(): void {
@@ -42,6 +42,89 @@ export class PokedexComponent implements OnInit, OnChanges {
     this.screenHeight = window.innerHeight;
     //console.log("w: " + this.screenWidth + " h: " + this.screenHeight);
     this.styleFlag = this.screenWidth > 400 && this.screenHeight > 400;
+    this.route.params
+      .subscribe(params => {
+        this.pokemonID = <number>params['pokemonID'].split("=")[1].trim();
+        if (this.pokemonID > 0) {
+          console.log("chosen pokemon with ID: '" + this.pokemonID + "'");
+          this.pokemonDescription = '';
+          this.pokemonLocations = [];
+          this.pokemonMoves = [];
+          this.pokemonService.getPokemonByName(this.pokemonID)
+            .then((pokemon: any) => {
+              //console.log("pokemon: ", pokemon);
+              this.pokemonName = pokemon.name;
+              //console.log("name: " + pokemon.name);
+              this.sprites = <object>pokemon['sprites'];
+              let species = pokemon['species'];
+              //console.log("sprites", pokemon['sprites']);
+              this.pokemonImage = pokemon['sprites']['front_default'];
+              //this.pokemonImage = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
+              this.pokemonName = pokemon.name;
+              this.pokemonID = pokemon.id;
+              this.pokemonHeight = pokemon.height;
+              this.pokemonWeight = pokemon.weight;
+              // get and set color, and pokemon description
+              this.pokemonService.getPokemonSpeciesData(species.url)
+                .subscribe((speciesData: any) => {
+                  //console.log("pokemon species: ", speciesData);
+                  this.pokemonColor = speciesData['color']['name'];
+                  this.changeColor(this.pokemonColor);
+                  this.pokemonDescriptions = speciesData.flavor_text_entries;
+                  this.pokemonDescription = this.getEnglishDescriptions();
+                });
+              // parse over the types
+              this.pokemonType = pokemon.types;
+              //console.log("pokemonType", pokemon.types);
+              if (this.pokemonType.length > 1) {
+                // @ts-ignore
+                this.pokemonType = this.pokemonType[0].type.name[0].toUpperCase()+this.pokemonType[0].type.name.substring(1) + " and " + this.pokemonType[1].type.name[0].toUpperCase()+this.pokemonType[1].type.name.substring(1);
+              } else {
+                // @ts-ignore
+                this.pokemonType = this.pokemonType[0].type.name[0].toUpperCase()+this.pokemonType[0].type.name.substring(1);
+              }
+              // locations
+              this.pokemonService.getPokemonLocationEncounters(this.pokemonID.toString()).then(
+                (locations: any) => {
+                  if (locations.length == 0) {
+                    this.pokemonLocations.push("No known locations!");
+                  } else {
+                    locations.forEach((location: any) => {
+                      let names = location['location_area']['name'].split("-")
+                      let newName = '';
+                      names.forEach((name: string) => {
+                        name = name[0].toUpperCase() + name.substring(1);
+                        newName += name + " ";
+                        //console.log(newName);
+                      });
+                      this.pokemonLocations.push(newName);
+                    });
+                    this.pokemonLocations.sort();
+                  }
+                });
+              // moves
+              let allMoves = pokemon['moves'];
+              //console.log("all moves: ");
+              //console.log(allMoves);
+              for(let i=0; i<allMoves.length; i++) {
+                //console.log("move: ");
+                //console.log(allMoves[i]['move'].name);
+                let move = allMoves[i]['move'].name;
+                move = move[0].toUpperCase() + move.substring(1);
+                this.pokemonMoves.push(move);
+              }
+              this.pokemonMoves.sort();
+            })
+            .catch((error: any) => {
+              console.log("Couldn't get Pokemon info with: '" + this.pokemonID + "'");
+              console.log(error);
+            });
+          //this.getThePokemonFamily();
+        }
+        else {
+          console.log("searching for a new pokemon");
+        }
+      });
   }
 
   @HostListener('window:resize', ['$event'])
@@ -150,4 +233,22 @@ export class PokedexComponent implements OnInit, OnChanges {
     else if (pokemonColor === "gray" || pokemonColor === "grey") { return "#8f8b8b"}
     else return "#ffffff";
   }
+
+  getEnglishDescriptions() {
+    let englishDescriptions: any = [];
+    for(let i=0; i<this.pokemonDescriptions.length; i++) {
+      // @ts-ignore
+      if (this.pokemonDescriptions[i].language.name === "en") {
+        //console.log("desc: ", this.pokemonDescriptions[i]);
+        englishDescriptions.push(this.pokemonDescriptions[i]);
+      }
+    }
+    // @ts-ignore
+    let randomIndex = Math.floor(Math.random() * englishDescriptions.length-1);
+    if (randomIndex < 0) randomIndex = 0;
+    this.pokemonDescription =englishDescriptions[randomIndex].flavor_text;
+    //console.log(this.pokemonDescription);
+    return this.pokemonDescription;
+  }
+
 }

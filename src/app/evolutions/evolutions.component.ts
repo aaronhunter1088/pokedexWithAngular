@@ -665,15 +665,4 @@ export class EvolutionsComponent implements OnInit {
     else return "#ffffff";
   }
 
-  theNewMethod(obj1:any, obj2:any) {
-    if (obj1.id > obj2.id) {
-      return 1;
-    }
-
-    if (obj1.cognome < obj2.cognome) {
-      return -1;
-    }
-
-    return 0;
-  }
 }

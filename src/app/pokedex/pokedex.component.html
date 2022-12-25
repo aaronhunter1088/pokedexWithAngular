@@ -2,15 +2,32 @@
   <div class="pokemon-grid">
     <div id="imageAndImageBtns" class="box"
          [ngStyle]="{'background-color':changeColor(pokemonColor)}">
-      <nav>
-        <a routerLink="/evolutions/?pokemonID={{pokemonID}}" style="text-decoration: none; color: black;">
+      <div id="backAndName">
+        <div id="backArrow" style="float:left;">
+          <a routerLink="/">
+            <img alt="Go to Home"
+                 src="./assets/images/arrow-back.jpg"
+                 title="Click here to return to Homepage"
+                 style="vertical-align:middle;
+                        width:50px; height:50px;
+                        mix-blend-mode:darken;">
+          </a>
+        </div>
+        <div id="mainName" style="float:initial;justify-content:center;padding-top:2%;padding-right:10%;">
           <h1 id="infoTitle">{{pokemonName | titlecase}}</h1>
-        </a>
-      </nav>
-      <img id="imageOfPokemon" alt="pokemon" src="{{pokemonImage}}" width="250" height="250"/>
-      <div id="photosDiv">
-        <button id="defaultImgBtn" class="tab" (click)="showImage('default')">Show Default</button>
-        <button id="shinyImgBtn" class="tab" (click)="showImage('shiny')">Show Shiny</button>
+        </div>
+      </div>
+      <div id="imageOfPokemon">
+        <img id="image" alt="pokemon" src="{{pokemonImage}}" width="250" height="250"/>
+        <div id="photoButtonsDiv" style="justify-content:center;text-align:center;">
+          <div style="float:left;padding-left:28%;">
+            <button id="defaultImgBtn" class="tab" (click)="showImage('default')">Show Default</button>
+          </div>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <div style="float:right;padding-right:28%;">
+            <button id="shinyImgBtn" class="tab" (click)="showImage('shiny')">Show Shiny</button>
+          </div>
+        </div>
       </div>
     </div>
     <div id="info" class="box"
@@ -67,3 +84,7 @@
     </div>
   </div>
 </div>
+
+<!-- Display evolutions here -->
+<h2>Evolutions</h2>
+<app-evolutions></app-evolutions>

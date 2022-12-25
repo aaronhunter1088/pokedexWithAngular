@@ -17,7 +17,7 @@
   <div
     *ngFor="let pokemon of pokemonMap | keyvalue | paginate: {itemsPerPage: this.itemsPerPage, currentPage: this.page, totalItems: this.numberOfPokemon}">
     <nav>
-      <a routerLink="/evolutions/?pokemonID={{pokemon.value.id}}" style="text-decoration: none; color: black;">
+      <a routerLink="/pokedex/?pokemonID={{pokemon.value.id}}" style="text-decoration: none; color: black;">
         <div class="box"
              [ngStyle]="{'background-color':changeColor(pokemon.value.color)}">
           <div id="nameAndID" style="display:inline-flex;">

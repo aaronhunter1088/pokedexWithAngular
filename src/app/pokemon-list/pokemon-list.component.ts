@@ -27,12 +27,11 @@ export class PokemonListComponent implements OnInit {
     this.getThePokemon();
   }
 
-  ngOnReload() {
-
-  }
+  ngOnReload() {}
 
   ngOnDestroy() {
     this.pokemonService.saveCurrentPage(this.page);
+    //this.pokemonService.savePokemonID(pokemon.value.id);
   }
 
   getThePokemon() {
