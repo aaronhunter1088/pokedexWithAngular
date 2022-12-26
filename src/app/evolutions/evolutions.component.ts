@@ -35,6 +35,9 @@ export class EvolutionsComponent implements OnInit {
         let pokemonID = <number>params['pokemonID'].split("=")[1].trim();
         if(pokemonID != null) {
           console.log("chosen pokemon with ID: '" + pokemonID + "'");
+          this.pokemonFamily = [];
+          this.stages = [];
+          this.stage = 0;
           this.pokemonChainID = this.getEvolutionChainID(pokemonID);
           Array.of(this.pokemonIDToEvolutionChainMap.get(this.pokemonChainID)).forEach(family => {
             // @ts-ignore
