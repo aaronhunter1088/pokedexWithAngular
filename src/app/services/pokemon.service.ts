@@ -39,6 +39,10 @@ export class PokemonService {
     return this.Pokedex.getPokemonEncounterAreas(pokemonID);
   }
 
+  getPokemonChainData(pokemonChainID: string) {
+    return this.Pokedex.getEvolutionChain(pokemonChainID);
+  }
+
   callURL(url: any) {
     return this.http.get(url);
   }

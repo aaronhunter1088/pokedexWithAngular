@@ -33,9 +33,9 @@ export class EvolutionsComponent implements OnInit {
     console.log("Evolutions Page loaded");
     this.route.params
       .subscribe(params => {
-        console.log("params", params)
+        //console.log("params", params)
         if (Object.keys(params).length !== 0) {
-          console.log("params keys.length: ", Object.keys(params).length)
+          //console.log("params keys.length: ", Object.keys(params).length)
           this.pokemonID = <number>params['pokemonID'].split("=")[1].trim();
         }
         if(this.pokemonID != null) {
@@ -102,6 +102,11 @@ export class EvolutionsComponent implements OnInit {
             });
           })
           console.log("chainID: ", this.pokemonChainID, " and # of pokemon in family: ", this.pokemonFamilySize);
+          // TODO: add as a feature
+          this.pokemonService.getPokemonChainData(this.pokemonChainID.toString())
+            .then((response: any) => {
+              console.log("chain response: ", response);
+            })
         }
     });
   }
