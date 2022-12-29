@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { ActivatedRoute } from "@angular/router";
 import {PokemonService} from "../services/pokemon.service";
 
@@ -9,6 +9,7 @@ import {PokemonService} from "../services/pokemon.service";
 })
 export class EvolutionsComponent implements OnInit {
 
+  @Input() pokemonID: string | number  = '';
   pokemonIDToEvolutionChainMap = new Map<number, number[][]>();
   pokemonChainID: number;
   pokemonFamilyIDs: number[][] = [];
@@ -32,13 +33,17 @@ export class EvolutionsComponent implements OnInit {
     console.log("Evolutions Page loaded");
     this.route.params
       .subscribe(params => {
-        let pokemonID = <number>params['pokemonID'].split("=")[1].trim();
-        if(pokemonID != null) {
-          console.log("chosen pokemon with ID: '" + pokemonID + "'");
+        console.log("params", params)
+        if (Object.keys(params).length !== 0) {
+          console.log("params keys.length: ", Object.keys(params).length)
+          this.pokemonID = <number>params['pokemonID'].split("=")[1].trim();
+        }
+        if(this.pokemonID != null) {
+          console.log("chosen pokemon with ID: '" + this.pokemonID + "'");
           this.pokemonFamily = [];
           this.stages = [];
           this.stage = 0;
-          this.pokemonChainID = this.getEvolutionChainID(pokemonID);
+          this.pokemonChainID = this.getEvolutionChainID(Number.parseInt(this.pokemonID.toString()));
           Array.of(this.pokemonIDToEvolutionChainMap.get(this.pokemonChainID)).forEach(family => {
             // @ts-ignore
             this.pokemonFamilyIDs = family; // a list of list of IDs [ [1], [2], [3,10033,10195] ]
@@ -600,7 +605,7 @@ export class EvolutionsComponent implements OnInit {
       [477, [[899] ]], // wyrdeer
       [478, [[905,10249] ]], // enamorus, enamorus-therian
       [479, [[10027, 10028, 10029], [10030, 10031, 10032]]], // pumpkaboo-small, large, super, gorgeist-small, large, super
-      /* Mega begins 10033: Venusaur-mega */
+      /* End of generation 8 */
     ]);
   }
 

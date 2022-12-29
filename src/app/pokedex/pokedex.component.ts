@@ -1,4 +1,4 @@
-import {Component, OnInit, OnChanges, Input, HostListener} from '@angular/core';
+import {Component, OnInit, OnChanges, Input, HostListener, SimpleChange} from '@angular/core';
 import {PokemonService} from "../services/pokemon.service";
 import {HttpClient} from "@angular/common/http";
 import {ActivatedRoute} from "@angular/router";
@@ -40,14 +40,24 @@ export class PokedexComponent implements OnInit, OnChanges {
     // @ts-ignore
     document.getElementById('defaultImgBtn').style.fontWeight = this.bold;
     // @ts-ignore
+    document.getElementById('shinyImgBtn').style.fontWeight = this.normal;
+    // @ts-ignore
+    document.getElementById('gifImgBtn').style.fontWeight = this.normal;
+    // @ts-ignore
     document.getElementById('descriptionBtn').style.fontWeight = this.bold;
+
     this.screenWidth = window.innerWidth;
     this.screenHeight = window.innerHeight;
     //console.log("w: " + this.screenWidth + " h: " + this.screenHeight);
     this.styleFlag = this.screenWidth > 400 && this.screenHeight > 400;
     this.route.params
       .subscribe(params => {
-        this.pokemonID = <number>params['pokemonID'].split("=")[1].trim();
+        console.log("params", params)
+        console.log("pokemonID", this.pokemonID);
+        if (Object.keys(params).length !== 0) {
+          console.log("params keys.length: ", Object.keys(params).length)
+          this.pokemonID = <number>params['pokemonID'].split("=")[1].trim();
+        }
         if (this.pokemonID > 0) {
           console.log("chosen pokemon with ID: '" + this.pokemonID + "'");
           this.pokemonDescription = '';
@@ -123,6 +133,7 @@ export class PokedexComponent implements OnInit, OnChanges {
               console.log("Couldn't get Pokemon info with: '" + this.pokemonID + "'");
               console.log(error);
             })
+          this.ngOnChanges();
         }
         else {
           console.log("searching for a new pokemon");
@@ -139,6 +150,7 @@ export class PokedexComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
+    console.log("changes")
     this.descriptionDiv = true;
     this.locationsDiv = false;
     this.movesDiv = false;
@@ -147,6 +159,8 @@ export class PokedexComponent implements OnInit, OnChanges {
     document.getElementById('defaultImgBtn').style.fontWeight = this.bold;
     // @ts-ignore
     document.getElementById('shinyImgBtn').style.fontWeight = this.normal;
+    // @ts-ignore
+    document.getElementById('gifImgBtn').style.fontWeight = this.normal;
     // @ts-ignore
     document.getElementById('descriptionBtn').style.fontWeight = this.bold;
     // @ts-ignore
