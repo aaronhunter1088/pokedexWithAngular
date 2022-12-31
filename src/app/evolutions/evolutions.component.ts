@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import { ActivatedRoute } from "@angular/router";
 import {PokemonService} from "../services/pokemon.service";
+import {min} from "rxjs";
 
 @Component({
   selector: 'app-evolutions',
@@ -15,7 +16,11 @@ export class EvolutionsComponent implements OnInit, OnChanges {
   pokemonFamilyIDs: number[][] = []
   allIDs: number[] = []
   pokemonFamily: any[][] = []
-  pokemonFamilyLevels: any[] = []
+  pokemonFamilyLevelsMap = new Map<number, number>()
+  pokemonFamilyAltLevels: any[] = []
+  isBabyPokemonMap = new Map<number, boolean>()
+  itemMap = new Map<number, any>()
+  attrMap = new Map<number, any>()
   pokemonLevelsListDup: any[] = []
   pokemonMap = new Map
   pokemonFamilySize: number
@@ -25,7 +30,11 @@ export class EvolutionsComponent implements OnInit, OnChanges {
   stages: number[] = []
   stage: number = 0
   doesPokemonEvolve: boolean = false;
+  isBabyPokemon: boolean = false;
   counter: number = 0;
+  itemCounter: number = 0;
+  attrCounter: number = 0;
+  babyCounter: number = 0;
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
     this.generateEvolutionsMap()
@@ -46,20 +55,27 @@ export class EvolutionsComponent implements OnInit, OnChanges {
           console.log("chosen pokemon with ID: '" + this.pokemonID + "'")
           this.resetEvolutionParameters()
           this.pokemonChainID = this.getEvolutionChainID(Number.parseInt(this.pokemonID.toString()))
-          let chainRes = this.pokemonService.getPokemonChainData(this.pokemonChainID.toString());
-          this.populatePokemonFamilyLevelsList(chainRes)
+          //let chainRes = this.pokemonService.getPokemonChainData(this.pokemonChainID.toString());
+          //this.populatePokemonFamilyLevelsList(chainRes)
           Array.of(this.pokemonIDToEvolutionChainMap.get(this.pokemonChainID)).forEach(family => {
             // @ts-ignore
             this.pokemonFamilyIDs = family; // a list of list of IDs [ [1], [2], [3,10033,10195] ]
-            this.setFamilySize(this.pokemonFamilyIDs);
-            this.setStages(this.pokemonFamilyIDs);
+            this.setFamilySize();
+            this.setStages();
             this.setAllIDs();
-            // @ts-ignore
-            this.pokemonFamilyIDs.forEach(idList => {
-              this.createListOfPokemonForIDList(idList);
-            });
+            let chainRes = this.pokemonService.getPokemonChainData(this.pokemonChainID.toString());
+            this.populatePokemonFamilyLevelsList(chainRes)
+            // // @ts-ignore
+            // this.pokemonFamilyIDs.forEach(idList => {
+            //   this.createListOfPokemonForIDList(idList);
+            // });
             //console.log("chainID: ", this.pokemonChainID, " and # of pokemon in family: ", this.pokemonFamilySize);
           })
+          console.log("family levels set. creating pokemon")
+          // @ts-ignore
+          this.pokemonFamilyIDs.forEach(idList => {
+            this.createListOfPokemonForIDList(idList);
+          });
         }
     })
   }
@@ -629,25 +645,25 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     else return "#ffffff";
   }
 
-  setFamilySize(family: number[][]) {
-    family.forEach(idList => {
-      idList.forEach((id: any) => {
+  setFamilySize() {
+    Array.from(this.pokemonFamilyIDs).forEach(idList => {
+      Array.from(idList).forEach((id: any) => {
         this.pokemonFamilySize += 1;
       });
     });
     //console.log("familySize:", this.pokemonFamilySize);
   }
 
-  setStages(family: number[][]) {
-    family.forEach(idList => {
+  setStages() {
+    Array.from(this.pokemonFamilyIDs).forEach(idList => {
       this.stages.push(++this.stage);
     })
     //console.log("stages: ", this.stages.length);
   }
 
   setAllIDs() {
-    this.pokemonFamilyIDs.forEach(idList => {
-      idList.forEach((id: any) => {
+    Array.from(this.pokemonFamilyIDs).forEach(idList => {
+      Array.from(idList).forEach((id: any) => {
         this.allIDs.push(id);
       });
     });
@@ -658,7 +674,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
   createListOfPokemonForIDList(idList: any[]) {
     //console.log("IDList: ", idList)
     let pokemonList: any[] = [];
-    idList.forEach((id: any) => {
+    Array.from(idList).forEach((id: any) => {
       //console.log("id: ",id);
       pokemonList = [];
       this.pokemonService.getPokemonByName(id)
@@ -676,13 +692,16 @@ export class EvolutionsComponent implements OnInit, OnChanges {
   }
 
   resetEvolutionParameters() {
-    this.pokemonFamily = [];
-    this.pokemonFamilySize = 0;
-    this.pokemonFamilyLevels = [];
-    this.allIDs = [];
-    this.stages = [];
-    this.stage = 0;
-    this.counter = 0;
+    this.pokemonFamily = []
+    this.pokemonFamilySize = 0
+    this.pokemonFamilyLevelsMap = new Map<number, number>()
+    this.pokemonFamilyAltLevels = []
+    this.isBabyPokemonMap = new Map<number, boolean>()
+    this.allIDs = []
+    this.stages = []
+    this.stage = 0
+    this.counter = 0
+    //this.babyCounter = 0;
   }
 
   createPokemon(pokemonResponse: any, speciesData: any): any {
@@ -706,13 +725,61 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     let officialImg = otherSprites['official-artwork'].front_default;
     let gifImg = pokemonResponse['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
     while (pokemonResponse.id != this.allIDs[this.counter]) {
-      console.log("res.id[",pokemonResponse.id,"] != allIDs[",this.allIDs[this.counter],"] counter: ", this.counter)
+      //console.log("res.id[",pokemonResponse.id,"] != allIDs[",this.allIDs[this.counter],"] counter[", this.counter,"]")
       this.counter += 1;
+      //this.itemCounter += 1;
+      //this.attrCounter += 1;
     }
-    let level = this.pokemonFamilyLevels[this.counter] != undefined ? this.pokemonFamilyLevels[this.counter] : null
-    this.doesPokemonEvolve = level != null;
-    console.log("res.id[",pokemonResponse.id,"] = allIDs[",this.allIDs[this.counter],"] levels[", this.counter, "]=",level," name[",pokemonResponse.name,"]")
+    let level = this.pokemonFamilyLevelsMap.get(pokemonResponse.id)
+    console.log("res.id[",pokemonResponse.id,"]")
+    console.log("level[", level, "]"," name[",pokemonResponse.name,"]")
+    //this.isBabyPokemon = <boolean>this.isBabyPokemonMap.get(pokemonResponse.id)
+    console.log(pokemonResponse.name, " isBaby: ", this.isBabyPokemonMap.get(pokemonResponse.id));
+    // check pokemonResponse.id with chainMap
+    let chainIDToCheck = this.getEvolutionChainID(pokemonResponse.id);
+    let idsInChainCheck = this.pokemonIDToEvolutionChainMap.get(chainIDToCheck); // ex: [[19,10091], [20,10092,10093] ]]
+    let listCount = 0;
+    // @ts-ignore
+    idsInChainCheck.every(listOfIDs => {
+      let found = false;
+      if (listOfIDs.includes(pokemonResponse.id)) {
+        found = true;
+        let idToUse = listOfIDs[0];
+        level = this.pokemonFamilyLevelsMap.get(idToUse)
+      }
+      if (found) return false; // to break out of every
+      else listCount += 1;
+    })
+    listCount = 0;
+
+    this.doesPokemonEvolve = level != undefined;
+    // check for items or other attributes
+    //item. item can be different. not always the same
+    let item = this.itemMap.get(pokemonResponse.id)
+    // @ts-ignore
+    idsInChainCheck.every(listOfIDs => {
+      let found = false;
+      if (listOfIDs.includes(pokemonResponse.id)) {
+        found = true;
+        let idToUse = listOfIDs[0];
+        item = this.itemMap.get(idToUse)
+        if (item != null) {
+          item = this.checkTypeAndUpdateIfNecessary(pokemonResponse.id, item, pokemonResponse.types)
+        }
+      }
+      if (found) return false; // to break out of every
+      else listCount += 1;
+    })
+    listCount = 0;
+
+    let evolvesWithItem = item != null;
+    // min hap
+    let minHappiness = this.attrMap.get(pokemonResponse.id)
+    let evolvesByHappinessAttribute = minHappiness != null;
     this.counter = 0
+    this.itemCounter = 0;
+    this.attrCounter = 0;
+
     let pokemon = {
       id: pokemonResponse.id,
       name: pokemonResponse.name,
@@ -722,9 +789,12 @@ export class EvolutionsComponent implements OnInit, OnChanges {
       type: pokemonType,
       photo: this.defaultImagePresent ? frontImg : officialImg,
       evolutionLevel: level,
-      itemUsedToEvolve: "item",
       evolves: this.doesPokemonEvolve,
-      evolvesWithItem: false
+      evolvesWithItem: evolvesWithItem,
+      itemUsedToEvolve: item != null ? item.name : null,
+      evolvesByHappinessAttribute: evolvesByHappinessAttribute,
+      attribute: minHappiness != null ? minHappiness : null,
+      isBaby: this.isBabyPokemonMap.get(pokemonResponse.id)
     }
     //console.log("pokemon: ", pokemon)
     return pokemon;
@@ -735,23 +805,93 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     chainResponse.then((cR:any) => {
       //console.log(cR)
       let evolvesTo = cR['chain']['evolves_to']
-      //console.log("evolves_to: ", evolvesTo)
+      console.log("evolvesTo length outermost: ", evolvesTo.length)
+      let isBaby = cR['chain'].is_baby
+      let level = evolvesTo[0]['evolution_details'][0].min_level
+      let itemUsedToEvolve = evolvesTo[0]['evolution_details'][0].item;
+      let minHappiness = evolvesTo[0]['evolution_details'][0].min_happiness
+      console.log(cR['chain']['species'].name, " isBaby: ", isBaby)
+      let speciesUrl = cR['chain']['species'].url.split("/")
+      let speciesId = Number.parseInt(speciesUrl[6]);
+      this.allIDs.forEach(id => {
+        console.log("allID: ", id, " speciesID: ", speciesId)
+        if (speciesId == id) {
+          this.pokemonFamilyLevelsMap.set(id, level);
+          console.log("id: ", id, " level: ", level)
+          this.isBabyPokemonMap.set(id, isBaby)
+          console.log("id: ", id, " isBaby: ", isBaby)
+          this.itemMap.set(id, itemUsedToEvolve)
+          console.log("itemUsedToEvolve: ", itemUsedToEvolve)
+          this.attrMap.set(id, minHappiness)
+          console.log("minHappiness: ", minHappiness)
+        } else {
+          //console.log("speciesURL", speciesUrl, " doesnt contain ID ", id)
+        }
+      })
+      //console.log("inner evolves_to: ", evolvesTo[0])
       if (evolvesTo.length > 0) {
         this.getLevelList(evolvesTo);
       }
-    }).then(() => console.log("levelList: ", this.pokemonFamilyLevels) )
+    })//.then(() => console.log("levelList: ", this.pokemonFamilyLevels) )
   }
 
   getLevelList(evolvesTo: any[]) {
-    let evolvesToObj: any;
+    console.log("getNext evolvesTo: ", evolvesTo[0]) // list of objects
+    let evolvesToObj
+    let isBaby: boolean
+    let level: number
     for(let i=0; i<evolvesTo.length; i++) {
       evolvesToObj = evolvesTo[i]
-      //console.log("evolvesToObj: ", evolvesToObj)
-      let level = evolvesToObj['evolution_details'][i].min_level
-      this.pokemonFamilyLevels.push(level);
-      if (evolvesToObj['evolves_to'].length > 0) { this.getLevelList(evolvesToObj['evolves_to']); }
-      else { this.pokemonFamilyLevels.push(null) }
+      isBaby = evolvesToObj.is_baby
+      if (evolvesToObj['evolves_to'].length > 0) {
+        level = evolvesToObj['evolves_to'][i]['evolution_details'][i].min_level
+      } else {
+        level = -1;
+      }
+      console.log(evolvesToObj['species'].name, " isBaby: ", isBaby)
+      console.log("level: ", level);
+    }
+    if (evolvesToObj['evolves_to'].length > 0) {
+      console.log("recursive call to getLevelList")
+      let itemUsedToEvolve = evolvesToObj['evolves_to'][0]['evolution_details'][0].item;
+      let minHappiness = evolvesToObj['evolves_to'][0]['evolution_details'][0].min_happines
+      let speciesUrl = evolvesToObj['species'].url.split("/")
+      let speciesId = Number.parseInt(speciesUrl[6]);
+      this.allIDs.forEach(id => {
+        console.log("allID: ", id, " speciesID: ", speciesId)
+        if (speciesId == id) {
+          this.pokemonFamilyLevelsMap.set(id, level);
+          console.log("id: ", id, " level: ", level)
+          this.isBabyPokemonMap.set(id, isBaby)
+          console.log("id: ", id, " isBaby: ", isBaby)
+          this.itemMap.set(id, itemUsedToEvolve)
+          console.log("itemUsedToEvolve: ", itemUsedToEvolve)
+          this.attrMap.set(id, minHappiness)
+          console.log("minHappiness: ", minHappiness)
+        } else {
+          //console.log("speciesURL", speciesUrl, " doesnt contain ID ", id)
+        }
+      })
+      this.getLevelList(evolvesToObj['evolves_to']);
     }
   }
 
+  checkTypeAndUpdateIfNecessary(id: number, item: string, pokemonType: any): object {
+    let returnItem = {
+      name : ""
+    }
+    //let types = pokemonType = pokemonResponse.types;
+    // if one type, easy
+    if (pokemonType.length == 1) {
+      let type = pokemonType[0].type.name
+      returnItem.name = type+"-stone"
+    }
+    // if two types, harder
+    else {
+      returnItem.name = 'determine'
+    }
+
+    console.log("returnItem: ", returnItem)
+    return returnItem;
+  }
 }

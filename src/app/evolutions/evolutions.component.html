@@ -22,15 +22,17 @@
                 <h3 id="weightOfPokemon">Weight: {{pokemon.weight}}</h3>
                 <h3 id="colorOfPokemon">Color: {{pokemon.color | titlecase}}</h3>
                 <h3 id="typeOfPokemon">Type: {{pokemon.type}}</h3>
-                <div *ngIf="pokemon.evolves && !pokemon.evolvesWithItem">
+                <div *ngIf="pokemon.evolves">
                   <h3 id="levelOfPokemon1">Evolves At Lvl: {{pokemon.evolutionLevel}}</h3>
                 </div>
-                <div *ngIf="pokemon.evolves && pokemon.evolvesWithItem">
-                  <h3 id="levelOfPokemon2">Evolves At Lvl: {{pokemon.evolutionLevel}}</h3>
-                  <br>
-                  <h3 id="itemToEvolve">Evolves with: {{pokemon.itemUsedToEvolve}}</h3>
+                <div *ngIf="pokemon.evolvesWithItem">
+                  <h3 id="itemToEvolve2">Evolves with: {{pokemon.itemUsedToEvolve | titlecase}}</h3>
                 </div>
-                <div *ngIf="!pokemon.evolves">
+                <div *ngIf="pokemon.evolvesByHappinessAttribute" style="display:inline-flex;">
+                  <h3>Evolves w/ Happiness: </h3>
+                  <h3 id="attrToEvolve">{{pokemon.attribute}}</h3>
+                </div>
+                <div *ngIf="!pokemon.evolves && !pokemon.evolvesWithItem && !pokemon.evolvesByAttribute && !pokemon.isBaby">
                   <h3 id="levelOfPokemon">Final Form</h3>
                 </div>
               </div>
