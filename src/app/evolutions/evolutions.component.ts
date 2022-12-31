@@ -21,6 +21,7 @@ export class EvolutionsComponent implements OnInit {
   sprites: any = {};
   stages: number[] = [];
   stage: number;
+  level: number = -1;
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
     this.generateEvolutionsMap();
@@ -30,7 +31,7 @@ export class EvolutionsComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log("Evolutions Page loaded");
+    //console.log("Evolutions Page loaded");
     this.route.params
       .subscribe(params => {
         //console.log("params", params)
@@ -47,66 +48,29 @@ export class EvolutionsComponent implements OnInit {
           Array.of(this.pokemonIDToEvolutionChainMap.get(this.pokemonChainID)).forEach(family => {
             // @ts-ignore
             this.pokemonFamilyIDs = family; // a list of list of IDs [ [1], [2], [3,10033,10195] ]
-            console.log("familyFirst:",family);
-            console.log("stages: ", this.pokemonFamilyIDs.length);
+            this.setFamilySize(this.pokemonFamilyIDs);
+            this.setStages(this.pokemonFamilyIDs);
             // @ts-ignore
             this.pokemonFamilyIDs.forEach(idList => {
-              console.log("IDList: ", idList)
-              this.stages.push(++this.stage);
-              let pokemon = {};
+              //console.log("IDList: ", idList)
               let pokemonList: any[] = [];
               idList.forEach((id: any) => {
-                console.log("id: ",id);
+                //console.log("id: ",id);
                 pokemonList = [];
                 this.pokemonService.getPokemonByName(id)
                   .then((pokemonResponse: any) => {
-                    let types = pokemonResponse.types;
                     this.pokemonService.getPokemonSpeciesData(pokemonResponse['species'].url)
                       .subscribe((speciesData: any) => {
-                        let pokemonType = '';
-                        if (types.length > 1)
-                        {
-                          pokemonType = types[0].type.name[0].toUpperCase()+types[0].type.name.substring(1) + " & " + types[1].type.name[0].toUpperCase()+types[1].type.name.substring(1);
-                        }
-                        else
-                        {
-                          pokemonType = types[0].type.name[0].toUpperCase()+types[0].type.name.substring(1);
-                        }
-                        let sprites = pokemonResponse['sprites'];
-                        let otherSprites = sprites['other'];
-                        //console.log("getPokemonSpritesEvolutions");
-                        //console.log(sprites['front_default']);
-                        let frontImg = sprites['front_default'];
-                        this.defaultImagePresent = frontImg != null;
-                        let shinyImg = sprites['front_shiny'];
-                        let officialImg = otherSprites['official-artwork'].front_default;
-                        let gifImg = pokemonResponse['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
-                        pokemon = {
-                          id: pokemonResponse.id,
-                          name: pokemonResponse.name,
-                          height: pokemonResponse.height,
-                          weight: pokemonResponse.weight,
-                          color: speciesData['color'].name,
-                          type: pokemonType,
-                          photo: this.defaultImagePresent ? frontImg : officialImg
-                        }
+                        let pokemon = this.createPokemon(pokemonResponse, speciesData);
                         pokemonList.push(pokemon);
                       });
                   });
-                this.pokemonFamilySize += 1;
-                pokemonList.sort(function (a, b) {
-                  return b.id-a.id;
-                });
+                pokemonList.sort(function (a, b) { return b.id-a.id; });
                 this.pokemonFamily.push(pokemonList);
               });
             });
           })
           console.log("chainID: ", this.pokemonChainID, " and # of pokemon in family: ", this.pokemonFamilySize);
-          // TODO: add as a feature
-          this.pokemonService.getPokemonChainData(this.pokemonChainID.toString())
-            .then((response: any) => {
-              console.log("chain response: ", response);
-            })
         }
     });
   }
@@ -624,7 +588,7 @@ export class EvolutionsComponent implements OnInit {
         let ids: any[] = [];
         // @ts-ignore
         pokemonIDs.forEach(id => ids.push(id));
-        console.log("key: ", key, " ids: ", ids.toString());
+        //console.log("key: ", key, " ids: ", ids.toString());
         // REWORK!
         // @ts-ignore
         //chainIDs.forEach(chainID => {
@@ -634,8 +598,8 @@ export class EvolutionsComponent implements OnInit {
           chainIDs.forEach(chainID => {
             if (pokemonID == chainID) {
               // @ts-ignore
-              console.log(pokemonID + " found with key", key);
-              console.log("pokemonChainID: ", key);
+              //console.log(pokemonID + " found with key", key);
+              //console.log("pokemonChainID: ", key);
               keyToReturn = key;
               return;
             }
@@ -651,8 +615,8 @@ export class EvolutionsComponent implements OnInit {
       .then((pokemon: any) => {
         let sprites = pokemon['sprites'];
         let otherSprites = sprites['other'];
-        console.log("getPokemonSpritesEvolutions");
-        console.log(sprites['front_default']);
+        //console.log("getPokemonSpritesEvolutions");
+        //console.log(sprites['front_default']);
         let frontImg = sprites['front_default'];
         this.defaultImagePresent = frontImg != null;
         let shinyImg = sprites['front_shiny'];
@@ -666,7 +630,7 @@ export class EvolutionsComponent implements OnInit {
           gif: gifImg
         };
       });
-    console.log("theSprites: ", this.sprites);
+    //console.log("theSprites: ", this.sprites);
   }
 
   changeColor(pokemonColor: string): string {
@@ -681,6 +645,82 @@ export class EvolutionsComponent implements OnInit {
     else if (pokemonColor === "black") { return "#8f8b8b"}
     else if (pokemonColor === "gray" || pokemonColor === "grey") { return "#8f8b8b"}
     else return "#ffffff";
+  }
+
+  setFamilySize(family: number[][]) {
+    family.forEach(idList => {
+      idList.forEach((id: any) => {
+        this.pokemonFamilySize += 1;
+      });
+    });
+    console.log("familySize:", this.pokemonFamilySize);
+  }
+
+  setStages(family: number[][]) {
+    family.forEach(idList => {
+      this.stages.push(++this.stage);
+    })
+    console.log("stages: ", this.stages.length);
+  }
+
+  createPokemon(pokemonResponse: any, speciesData: any): any {
+    let types = pokemonResponse.types;
+    let pokemonType = '';
+    if (types.length > 1)
+    {
+      pokemonType = types[0].type.name[0].toUpperCase()+types[0].type.name.substring(1) + " & " + types[1].type.name[0].toUpperCase()+types[1].type.name.substring(1);
+    }
+    else
+    {
+      pokemonType = types[0].type.name[0].toUpperCase()+types[0].type.name.substring(1);
+    }
+    let sprites = pokemonResponse['sprites'];
+    let otherSprites = sprites['other'];
+    //console.log("getPokemonSpritesEvolutions");
+    //console.log(sprites['front_default']);
+    let frontImg = sprites['front_default'];
+    this.defaultImagePresent = frontImg != null;
+    let shinyImg = sprites['front_shiny'];
+    let officialImg = otherSprites['official-artwork'].front_default;
+    let gifImg = pokemonResponse['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
+    let levels = [16,32,null,null,null]
+    let pokemon = {
+      id: pokemonResponse.id,
+      name: pokemonResponse.name,
+      height: pokemonResponse.height,
+      weight: pokemonResponse.weight,
+      color: speciesData['color'].name,
+      type: pokemonType,
+      photo: this.defaultImagePresent ? frontImg : officialImg,
+      evolutionLevel: levels[0]
+    }
+    return pokemon;
+  }
+
+  // TODO: edit
+  setLevel(chainID: number, pokemonName: string): number {
+    let level = -1;
+    console.log("level before chain call: ", level);
+    this.pokemonService.getPokemonChainData(this.pokemonChainID.toString())
+      // @ts-ignore
+      .then((response: any) => {
+        console.log("chain response: ", response);
+        let chainName = response['chain']['species'].name;
+        let evolvesTo = response['chain']['evolves_to']
+        console.log("chainName: ", chainName);
+        if (chainName === pokemonName) {
+          //pokemon.evolutionLevel = evolvesTo[0]['evolution_details'][0].min_level;
+          level = evolvesTo[0]['evolution_details'][0].min_level;
+          //this.level = level;
+        } else {
+          console.log("do something else")
+        }
+        console.log("level before return: ", level);
+      })
+      .catch((err: any) => {
+        console.log("Pokemon ", pokemonName, " failed to get evolution data")
+      })
+    return level;
   }
 
 }

@@ -35,7 +35,7 @@ export class PokemonService {
   }
 
   getPokemonLocationEncounters(pokemonID: string) {
-    console.log("inside pokemonLocationEncounters pokemonID: ", pokemonID);
+    //console.log("inside pokemonLocationEncounters pokemonID: ", pokemonID);
     return this.Pokedex.getPokemonEncounterAreas(pokemonID);
   }
 
