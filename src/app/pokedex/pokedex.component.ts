@@ -53,7 +53,7 @@ export class PokedexComponent implements OnInit, OnChanges {
     this.route.params
       .subscribe(params => {
         console.log("params", params)
-        console.log("pokemonID", this.pokemonID);
+        //console.log("pokemonID", this.pokemonID);
         if (Object.keys(params).length !== 0) {
           console.log("params keys.length: ", Object.keys(params).length)
           this.pokemonID = <number>params['pokemonID'].split("=")[1].trim();

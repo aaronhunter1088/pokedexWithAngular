@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import { ActivatedRoute } from "@angular/router";
 import {PokemonService} from "../services/pokemon.service";
 
@@ -7,27 +7,30 @@ import {PokemonService} from "../services/pokemon.service";
   templateUrl: './evolutions.component.html',
   styleUrls: ['./evolutions.component.css']
 })
-export class EvolutionsComponent implements OnInit {
+export class EvolutionsComponent implements OnInit, OnChanges {
 
-  @Input() pokemonID: string | number  = '';
-  pokemonIDToEvolutionChainMap = new Map<number, number[][]>();
-  pokemonChainID: number;
-  pokemonFamilyIDs: number[][] = [];
-  pokemonFamily: any[][] = [];
-  pokemonMap = new Map;
-  pokemonFamilySize: number;
-  defaultImagePresent: boolean = false;
-  gifImagePresent: boolean = false;
-  sprites: any = {};
-  stages: number[] = [];
-  stage: number;
-  level: number = -1;
+  @Input() pokemonID: string | number  = ''
+  pokemonIDToEvolutionChainMap = new Map<number, number[][]>()
+  pokemonChainID: number
+  pokemonFamilyIDs: number[][] = []
+  allIDs: number[] = []
+  pokemonFamily: any[][] = []
+  pokemonFamilyLevels: any[] = []
+  pokemonLevelsListDup: any[] = []
+  pokemonMap = new Map
+  pokemonFamilySize: number
+  defaultImagePresent: boolean = false
+  gifImagePresent: boolean = false
+  sprites: any = {}
+  stages: number[] = []
+  stage: number = 0
+  doesPokemonEvolve: boolean = false;
+  counter: number = 0;
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
-    this.generateEvolutionsMap();
-    this.pokemonChainID = 0;
-    this.pokemonFamilySize = 0;
-    this.stage = 0;
+    this.generateEvolutionsMap()
+    this.pokemonChainID = 0
+    this.pokemonFamilySize = 0
   }
 
   ngOnInit() {
@@ -40,51 +43,32 @@ export class EvolutionsComponent implements OnInit {
           this.pokemonID = <number>params['pokemonID'].split("=")[1].trim();
         }
         if(this.pokemonID != null) {
-          console.log("chosen pokemon with ID: '" + this.pokemonID + "'");
-          this.pokemonFamily = [];
-          this.stages = [];
-          this.stage = 0;
-          this.pokemonChainID = this.getEvolutionChainID(Number.parseInt(this.pokemonID.toString()));
+          console.log("chosen pokemon with ID: '" + this.pokemonID + "'")
+          this.resetEvolutionParameters()
+          this.pokemonChainID = this.getEvolutionChainID(Number.parseInt(this.pokemonID.toString()))
+          let chainRes = this.pokemonService.getPokemonChainData(this.pokemonChainID.toString());
+          this.populatePokemonFamilyLevelsList(chainRes)
           Array.of(this.pokemonIDToEvolutionChainMap.get(this.pokemonChainID)).forEach(family => {
             // @ts-ignore
             this.pokemonFamilyIDs = family; // a list of list of IDs [ [1], [2], [3,10033,10195] ]
             this.setFamilySize(this.pokemonFamilyIDs);
             this.setStages(this.pokemonFamilyIDs);
+            this.setAllIDs();
             // @ts-ignore
             this.pokemonFamilyIDs.forEach(idList => {
-              //console.log("IDList: ", idList)
-              let pokemonList: any[] = [];
-              idList.forEach((id: any) => {
-                //console.log("id: ",id);
-                pokemonList = [];
-                this.pokemonService.getPokemonByName(id)
-                  .then((pokemonResponse: any) => {
-                    this.pokemonService.getPokemonSpeciesData(pokemonResponse['species'].url)
-                      .subscribe((speciesData: any) => {
-                        let pokemon = this.createPokemon(pokemonResponse, speciesData);
-                        pokemonList.push(pokemon);
-                      });
-                  });
-                pokemonList.sort(function (a, b) { return b.id-a.id; });
-                this.pokemonFamily.push(pokemonList);
-              });
+              this.createListOfPokemonForIDList(idList);
             });
+            //console.log("chainID: ", this.pokemonChainID, " and # of pokemon in family: ", this.pokemonFamilySize);
           })
-          console.log("chainID: ", this.pokemonChainID, " and # of pokemon in family: ", this.pokemonFamilySize);
         }
-    });
+    })
+  }
+
+  ngOnChanges() {
+    //console.log("changes in evolutions")
   }
 
   generateEvolutionsMap() {
-    //let multi = [[1], [2], [3], [10195]];
-    // this.pokemonIDToEvolutionChainMap.set(
-    //   // @ts-ignore
-    //   1, [[1], [2], [3], [10195]]
-    // );
-    // this.pokemonIDToEvolutionChainMap.set(
-    //   // @ts-ignore
-    //   2, [[4], [5, 6], [7], [10195]]
-    // );
     this.pokemonIDToEvolutionChainMap = new Map<number, number[][]>([
       [1, [[1], [2], [3,10033,10195] ]], // bulbasaur, ivysaur, venusaur, venusaur-mega, venusaur-gmax
       [2, [[4], [5], [6,10034,10035,10196] ]], // squirtle, wartortle, blastoise, blastoise-mega, blastoise-gmax
@@ -239,7 +223,7 @@ export class EvolutionsComponent implements OnInit {
       [146, [[296], [297] ]], // makuhita, harlyama
       [147, [[299], [476 ] ]], // nosepass, probopass(level up in magnetic field)
       [148, [[300], [301] ]], // skitty, delcatty
-      [149, [[302.10066] ]], // sableye, sableye-mega
+      [149, [[302,10066] ]], // sableye, sableye-mega
       [150, [[303,10052] ]], // mawile, mawile-mega
       [151, [[304], [305], [306,10053] ]], // aron, lairon, aggron, aggron-mega
       [152, [[307], [308,10054] ]], // meditite, medicham, medicham-mega
@@ -269,7 +253,7 @@ export class EvolutionsComponent implements OnInit {
       [176, [[345], [346] ]], // lileep, cradily
       [177, [[347], [348] ]], // anorith, armaldo
       [178, [[349], [350] ]], // feebas, milotic
-      [179, [[351, 10013, 10014, 10015] ]], // castform OTHER IMAGES with ID: 10013-10015
+      [179, [[351,10013,10014,10015] ]], // castform OTHER IMAGES with ID: 10013-10015
       [180, [[352] ]], // kecleon
       [181, [[353], [354,10056] ]], // shuppet, banette, banette-mega
       [182, [[355], [356], [477] ]], // duskull, dusclops, dusknoir(trade with reaper cloth)
@@ -292,7 +276,7 @@ export class EvolutionsComponent implements OnInit {
       [199, [[383,10078] ]], // groudon, groudon-primal
       [200, [[384,10079] ]], // rayquaza, rayquaza-primal
       [201, [[385] ]], // jirachi
-      [202, [[386, 10001, 10002, 10003] ]], // deoxys(normal) OTHER IMAGES with ID: 10001, 10002, 10003
+      [202, [[386,10001,10002,10003] ]], // deoxys(normal) OTHER IMAGES with ID: 10001, 10002, 10003
       /* End of Generation 3 */
       [203, [[387], [388], [389] ]], // turtwig, grotle, torterra
       [204, [[390], [391], [392] ]], // chimchar, monferno, infernape
@@ -304,7 +288,7 @@ export class EvolutionsComponent implements OnInit {
       /* 210 does not exist in evolution-chains call */
       [211, [[408], [409] ]], // cranidos, rampardos
       [212, [[410], [411] ]], // shieldon, bastiodon
-      [213, [[412, 10004, 10005], [413], [414] ]], // burmy, wormadam-plant, mothim OTHER IMAGES for 412 with ID: 10004, 10005
+      [213, [[412,10004,10005], [413], [414] ]], // burmy, wormadam-plant, mothim OTHER IMAGES for 412 with ID: 10004, 10005
       [214, [[415], [416] ]], // combee, vespiquen
       [215, [[417] ]], // pachirisu
       [216, [[418], [419] ]], // buizel, floatzel
@@ -329,7 +313,7 @@ export class EvolutionsComponent implements OnInit {
       [237, [[456], [457] ]], // finneon, lumineon
       /* 238 does not exist in the evolution-chains call */
       [239, [[459], [460,10060] ]], // snover, abomasnow, abomasnow-mega
-      [240, [[479, 10008, 10009, 10010, 10011, 10012] ]], // rotom, OTHER IMAGES with ID: 10008-10012
+      [240, [[479,10008,10009,10010,10011,10012] ]], // rotom, OTHER IMAGES with ID: 10008-10012
       [241, [[480] ]], // uxie
       [242, [[481] ]], // mesprit
       [243, [[482] ]], // azelf
@@ -337,12 +321,12 @@ export class EvolutionsComponent implements OnInit {
       [245, [[484,10246] ]], // palkia, palkia-origin
       [246, [[485] ]], // heatran
       [247, [[486] ]], // regigigas
-      [248, [[487, 10007] ]], // giratina,-altered OTHER IMAGES with ID: 10007
+      [248, [[487,10007] ]], // giratina,-altered OTHER IMAGES with ID: 10007
       [249, [[488] ]], // cresselia
       [250, [[489], [490] ]], // phione, manaphy
       /* 251 does not exist in the evolution-chains call */
       [252, [[491] ]], // darkrai
-      [253, [[492, 10006] ]], // shaymin-lang, shaymin-sky
+      [253, [[492,10006] ]], // shaymin-lang, shaymin-sky
       [254, [[493] ]], // arceus
       [255, [[494] ]], // victini
       /* End of Generation 4 */
@@ -418,14 +402,14 @@ export class EvolutionsComponent implements OnInit {
       [325, [[638] ]], // cobalion
       [326, [[639] ]], // terrakion
       [327, [[640] ]], // virizion
-      [328, [[641, 10019] ]], // tornadus-incarnate, tornadus-therian
-      [329, [[642, 10020] ]], // thundurus-incarnate, thundurus-therian
-      [330, [[643, 10021] ]], // reshiram, thundurus-therian
+      [328, [[641,10019] ]], // tornadus-incarnate, tornadus-therian
+      [329, [[642,10020] ]], // thundurus-incarnate, thundurus-therian
+      [330, [[643,10021] ]], // reshiram, thundurus-therian
       [331, [[644] ]], // zekrom
       [332, [[645] ]], // landorus-incarnate
-      [333, [[646, 10022, 10023] ]], // kyurem, kyurem-black, kyurem-white
-      [334, [[647, 10024] ]], // keldeo-ordinary, keldeo-resolute
-      [335, [[648, 10018] ]], // meloetta-aria, meloetta-pirouette
+      [333, [[646,10022,10023] ]], // kyurem, kyurem-black, kyurem-white
+      [334, [[647,10024] ]], // keldeo-ordinary, keldeo-resolute
+      [335, [[648,10018] ]], // meloetta-aria, meloetta-pirouette
       [336, [[649] ]], // genesect
       // /* End of Generation 5 */
       [337, [[650], [651], [652] ]], // chespin, quilladin, chesnaught
@@ -439,8 +423,8 @@ export class EvolutionsComponent implements OnInit {
       [345, [[672], [673] ]], // skiddo, gogoat
       [346, [[674], [675] ]], // pancham, pangoro
       [347, [[676] ]], // furfrou,
-      [348, [[677], [678, 10025] ]], // espurr, meowstic-male, meowstic-female
-      [349, [[679], [680], [681, 10026] ]], // honedge, doublade, aegislash-shield, aegislash-blade
+      [348, [[677], [678,10025] ]], // espurr, meowstic-male, meowstic-female
+      [349, [[679], [680], [681,10026] ]], // honedge, doublade, aegislash-shield, aegislash-blade
       [350, [[682], [683] ]], // spritizee, aromatisse
       [351, [[684], [685] ]], // swirlix, slurpuff
       [352, [[686], [687] ]], // inkay, malamar
@@ -553,8 +537,8 @@ export class EvolutionsComponent implements OnInit {
       [456, [[874] ]], // stonjourner
       [457, [[875,10185] ]], // eiscue-ice, eiscue-noice
       [458, [[876,10186] ]], // indeedee-male, indeedee-female
-      [459, [[877, 10187] ]], // morpeko-full-belly, morpeko-hangry
-      [460, [[878], [879, 10224] ]], // cufant, copperajah, copperajah-gmax
+      [459, [[877,10187] ]], // morpeko-full-belly, morpeko-hangry
+      [460, [[878], [879,10224] ]], // cufant, copperajah, copperajah-gmax
       [461, [[880] ]], // dracozolt
       [462, [[881] ]], // arctozolt
       [463, [[882] ]], // dracovish
@@ -573,7 +557,7 @@ export class EvolutionsComponent implements OnInit {
       [476, [[898,10193,10194] ]], // calyrex, calyrex-ice, calyrex-shadow
       [477, [[899] ]], // wyrdeer
       [478, [[905,10249] ]], // enamorus, enamorus-therian
-      [479, [[10027, 10028, 10029], [10030, 10031, 10032]]], // pumpkaboo-small, large, super, gorgeist-small, large, super
+      [479, [[10027,10028,10029], [10030,10031,10032]]], // pumpkaboo-small, large, super, gorgeist-small, large, super
       /* End of generation 8 */
     ]);
   }
@@ -588,10 +572,8 @@ export class EvolutionsComponent implements OnInit {
         let ids: any[] = [];
         // @ts-ignore
         pokemonIDs.forEach(id => ids.push(id));
-        //console.log("key: ", key, " ids: ", ids.toString());
-        // REWORK!
+        //console.log("key: ", key, " ids: ", ids.toString())
         // @ts-ignore
-        //chainIDs.forEach(chainID => {
         for(let listIndex=0; listIndex<pokemonIDs.length; listIndex++) {
           // @ts-ignore
           let chainIDs = pokemonIDs[listIndex];
@@ -653,14 +635,54 @@ export class EvolutionsComponent implements OnInit {
         this.pokemonFamilySize += 1;
       });
     });
-    console.log("familySize:", this.pokemonFamilySize);
+    //console.log("familySize:", this.pokemonFamilySize);
   }
 
   setStages(family: number[][]) {
     family.forEach(idList => {
       this.stages.push(++this.stage);
     })
-    console.log("stages: ", this.stages.length);
+    //console.log("stages: ", this.stages.length);
+  }
+
+  setAllIDs() {
+    this.pokemonFamilyIDs.forEach(idList => {
+      idList.forEach((id: any) => {
+        this.allIDs.push(id);
+      });
+    });
+    this.allIDs.sort(function (a, b) { return a-b; })
+    //console.log("allIDs: ", this.allIDs);
+  }
+
+  createListOfPokemonForIDList(idList: any[]) {
+    //console.log("IDList: ", idList)
+    let pokemonList: any[] = [];
+    idList.forEach((id: any) => {
+      //console.log("id: ",id);
+      pokemonList = [];
+      this.pokemonService.getPokemonByName(id)
+        .then((pokemonResponse: any) => {
+          this.pokemonService.getPokemonSpeciesData(pokemonResponse['species'].url)
+            .subscribe( (speciesData: any) => {
+              let pokemon = this.createPokemon(pokemonResponse, speciesData);
+              pokemonList.push(pokemon);
+            });
+        });
+      pokemonList.sort(function (a, b) { return a.id-b.id; });
+      //console.log("adding list to familyList: ", pokemonList, " length is ", pokemonList.length)
+      this.pokemonFamily.push(pokemonList);
+    });
+  }
+
+  resetEvolutionParameters() {
+    this.pokemonFamily = [];
+    this.pokemonFamilySize = 0;
+    this.pokemonFamilyLevels = [];
+    this.allIDs = [];
+    this.stages = [];
+    this.stage = 0;
+    this.counter = 0;
   }
 
   createPokemon(pokemonResponse: any, speciesData: any): any {
@@ -683,7 +705,14 @@ export class EvolutionsComponent implements OnInit {
     let shinyImg = sprites['front_shiny'];
     let officialImg = otherSprites['official-artwork'].front_default;
     let gifImg = pokemonResponse['sprites']['versions']['generation-v']['black-white']['animated'].front_default;
-    let levels = [16,32,null,null,null]
+    while (pokemonResponse.id != this.allIDs[this.counter]) {
+      console.log("res.id[",pokemonResponse.id,"] != allIDs[",this.allIDs[this.counter],"] counter: ", this.counter)
+      this.counter += 1;
+    }
+    let level = this.pokemonFamilyLevels[this.counter] != undefined ? this.pokemonFamilyLevels[this.counter] : null
+    this.doesPokemonEvolve = level != null;
+    console.log("res.id[",pokemonResponse.id,"] = allIDs[",this.allIDs[this.counter],"] levels[", this.counter, "]=",level," name[",pokemonResponse.name,"]")
+    this.counter = 0
     let pokemon = {
       id: pokemonResponse.id,
       name: pokemonResponse.name,
@@ -692,35 +721,37 @@ export class EvolutionsComponent implements OnInit {
       color: speciesData['color'].name,
       type: pokemonType,
       photo: this.defaultImagePresent ? frontImg : officialImg,
-      evolutionLevel: levels[0]
+      evolutionLevel: level,
+      itemUsedToEvolve: "item",
+      evolves: this.doesPokemonEvolve,
+      evolvesWithItem: false
     }
+    //console.log("pokemon: ", pokemon)
     return pokemon;
   }
 
-  // TODO: edit
-  setLevel(chainID: number, pokemonName: string): number {
-    let level = -1;
-    console.log("level before chain call: ", level);
-    this.pokemonService.getPokemonChainData(this.pokemonChainID.toString())
-      // @ts-ignore
-      .then((response: any) => {
-        console.log("chain response: ", response);
-        let chainName = response['chain']['species'].name;
-        let evolvesTo = response['chain']['evolves_to']
-        console.log("chainName: ", chainName);
-        if (chainName === pokemonName) {
-          //pokemon.evolutionLevel = evolvesTo[0]['evolution_details'][0].min_level;
-          level = evolvesTo[0]['evolution_details'][0].min_level;
-          //this.level = level;
-        } else {
-          console.log("do something else")
-        }
-        console.log("level before return: ", level);
-      })
-      .catch((err: any) => {
-        console.log("Pokemon ", pokemonName, " failed to get evolution data")
-      })
-    return level;
+  populatePokemonFamilyLevelsList(chainResponse: any) {
+    //console.log(chainResponse)
+    chainResponse.then((cR:any) => {
+      //console.log(cR)
+      let evolvesTo = cR['chain']['evolves_to']
+      //console.log("evolves_to: ", evolvesTo)
+      if (evolvesTo.length > 0) {
+        this.getLevelList(evolvesTo);
+      }
+    }).then(() => console.log("levelList: ", this.pokemonFamilyLevels) )
+  }
+
+  getLevelList(evolvesTo: any[]) {
+    let evolvesToObj: any;
+    for(let i=0; i<evolvesTo.length; i++) {
+      evolvesToObj = evolvesTo[i]
+      //console.log("evolvesToObj: ", evolvesToObj)
+      let level = evolvesToObj['evolution_details'][i].min_level
+      this.pokemonFamilyLevels.push(level);
+      if (evolvesToObj['evolves_to'].length > 0) { this.getLevelList(evolvesToObj['evolves_to']); }
+      else { this.pokemonFamilyLevels.push(null) }
+    }
   }
 
 }

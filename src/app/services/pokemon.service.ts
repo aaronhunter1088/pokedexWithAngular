@@ -39,8 +39,9 @@ export class PokemonService {
     return this.Pokedex.getPokemonEncounterAreas(pokemonID);
   }
 
-  getPokemonChainData(pokemonChainID: string) {
-    return this.Pokedex.getEvolutionChain(pokemonChainID);
+  async getPokemonChainData(pokemonChainID: string): Promise<object> {
+    let response = await this.Pokedex.getEvolutionChain(pokemonChainID)
+    return response
   }
 
   callURL(url: any) {
