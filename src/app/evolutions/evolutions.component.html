@@ -30,7 +30,7 @@
                 </div>
                 <div *ngIf="pokemon.evolvesByHappinessAttribute" style="display:inline-flex;">
                   <h3>Evolves w/ Happiness: </h3>
-                  <h3 id="attrToEvolve">{{pokemon.attribute}}</h3>
+                  <h3 id="attrToEvolve">{{pokemon.happinessAttribute}}</h3>
                 </div>
                 <div *ngIf="!pokemon.evolves && !pokemon.evolvesWithItem && !pokemon.evolvesByAttribute && !pokemon.isBaby">
                   <h3 id="levelOfPokemon">Final Form</h3>
@@ -38,7 +38,7 @@
               </div>
             </a>
           </nav>
-          <div style="padding-top:20%; padding-bottom:10%; text-align:center; justify-content:center;"
+          <div style="padding-top:5%; padding-bottom:5%; text-align:center; justify-content:center;"
                *ngIf="!isNotLast">
             <img style="width:25px; height:25px;"
                  src="./assets/images/pokeball1.jpg">

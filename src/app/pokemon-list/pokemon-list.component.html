@@ -18,7 +18,7 @@
     *ngFor="let pokemon of pokemonMap | keyvalue | paginate: {itemsPerPage: this.itemsPerPage, currentPage: this.page, totalItems: this.numberOfPokemon}">
     <nav>
       <a routerLink="/pokedex/?pokemonID={{pokemon.value.id}}" style="text-decoration: none; color: black;">
-        <div class="box"
+        <div class="box" title="Click for more info"
              [ngStyle]="{'background-color':changeColor(pokemon.value.color)}">
           <div id="nameAndID" style="display:inline-flex;">
             <h3 id="name"
