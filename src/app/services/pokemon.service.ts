@@ -29,8 +29,9 @@ export class PokemonService {
     return this.Pokedex.getPokemonByName(pokemonName);
   }
 
-  getPokemonSpeciesData(speciesURL: string) {
-    //return this.Pokedex.getPokemonSpeciesByName(pokemonName);
+  getPokemonSpeciesData(speciesURL: string) { // speciesURL: string
+    //console.log("service: ", this.Pokedex.getPokemonSpecies(pokemonIDName).then((res: any) => res.body))
+    //return this.Pokedex.getPokemonSpecies(pokemonIDName);
     return this.callURL(speciesURL);
   }
 

@@ -21,7 +21,8 @@ export class EvolutionsComponent implements OnInit, OnChanges {
   isBabyPokemonMap = new Map<number, boolean>()
   itemMap = new Map<number, any>()
   attrMap = new Map<number, any>()
-  pokemonLevelsListDup: any[] = []
+  attrMapNew = new Map<number, Map<string, any>>()
+  specificAttributesMap = new Map<string, any>()
   pokemonMap = new Map
   pokemonFamilySize: number
   defaultImagePresent: boolean = false
@@ -38,6 +39,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
     this.generateEvolutionsMap()
+    this.generateDefaultAttributesMap()
     this.pokemonChainID = 0
     this.pokemonFamilySize = 0
   }
@@ -578,6 +580,23 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     ]);
   }
 
+  generateDefaultAttributesMap() {
+    this.specificAttributesMap = new Map<string, any>([
+      ["gender", undefined],
+      ["is_baby", undefined],
+      ["held_item", undefined],
+      ["use_item", undefined],
+      ["known_move", undefined],
+      ["location", undefined],
+      ["min_affection", undefined],
+      ["min_beauty", undefined],
+      ["min_happiness", undefined],
+      ["min_level", undefined],
+      ["needs_rain", undefined],
+      ["time_of_day", undefined]
+    ])
+  }
+
   getEvolutionChainID(pokemonID: number): number {
     let keys = Array.from(this.pokemonIDToEvolutionChainMap.keys());
     //console.log("map keys", keys);
@@ -679,8 +698,8 @@ export class EvolutionsComponent implements OnInit, OnChanges {
       pokemonList = [];
       this.pokemonService.getPokemonByName(id)
         .then((pokemonResponse: any) => {
-          this.pokemonService.getPokemonSpeciesData(pokemonResponse['species'].url)
-            .subscribe( (speciesData: any) => {
+          this.pokemonService.getPokemonSpeciesData(pokemonResponse['species'].url) // pokemonResponse['species'].url
+            .subscribe((speciesData: any) => {
               let pokemon = this.createPokemon(pokemonResponse, speciesData);
               pokemonList.push(pokemon);
             });
@@ -697,6 +716,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     this.pokemonFamilyLevelsMap = new Map<number, number>()
     this.pokemonFamilyAltLevels = []
     this.isBabyPokemonMap = new Map<number, boolean>()
+    this.specificAttributesMap = new Map<string, any>()
     this.allIDs = []
     this.stages = []
     this.stage = 0
@@ -730,7 +750,10 @@ export class EvolutionsComponent implements OnInit, OnChanges {
       //this.itemCounter += 1;
       //this.attrCounter += 1;
     }
+    //let specifics = <Map<string, any>>this.attrMapNew.get(pokemonResponse.id); // is a map
     let level = this.pokemonFamilyLevelsMap.get(pokemonResponse.id)
+    //let level2 = specifics.get("min_level")
+    //console.log("level2: ", level2)
     console.log("res.id[",pokemonResponse.id,"]")
     console.log("level[", level, "]"," name[",pokemonResponse.name,"]")
     //this.isBabyPokemon = <boolean>this.isBabyPokemonMap.get(pokemonResponse.id)
@@ -824,6 +847,12 @@ export class EvolutionsComponent implements OnInit, OnChanges {
           console.log("itemUsedToEvolve: ", itemUsedToEvolve)
           this.attrMap.set(id, minHappiness)
           console.log("minHappiness: ", minHappiness)
+
+          this.specificAttributesMap.set("min_level", level)
+          this.specificAttributesMap.set("is_baby", isBaby)
+          this.specificAttributesMap.set("use_item", itemUsedToEvolve)
+          this.specificAttributesMap.set("min_happiness", minHappiness)
+          this.attrMapNew.set(id, this.specificAttributesMap);
         } else {
           //console.log("speciesURL", speciesUrl, " doesnt contain ID ", id)
         }
@@ -868,6 +897,12 @@ export class EvolutionsComponent implements OnInit, OnChanges {
           console.log("itemUsedToEvolve: ", itemUsedToEvolve)
           this.attrMap.set(id, minHappiness)
           console.log("minHappiness: ", minHappiness)
+
+          this.specificAttributesMap.set("min_level", level)
+          this.specificAttributesMap.set("is_baby", isBaby)
+          this.specificAttributesMap.set("use_item", itemUsedToEvolve)
+          this.specificAttributesMap.set("min_happiness", minHappiness)
+          this.attrMapNew.set(id, this.specificAttributesMap);
         } else {
           //console.log("speciesURL", speciesUrl, " doesnt contain ID ", id)
         }
@@ -876,15 +911,17 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
   }
 
-  checkTypeAndUpdateIfNecessary(id: number, item: string, pokemonType: any): object {
+  checkTypeAndUpdateIfNecessary(id: number, item: any, pokemonType: any): object {
     let returnItem = {
       name : ""
     }
     //let types = pokemonType = pokemonResponse.types;
+    let itemFirstPart = item.name.split("-")
     // if one type, easy
     if (pokemonType.length == 1) {
       let type = pokemonType[0].type.name
-      returnItem.name = type+"-stone"
+      if (itemFirstPart != type)
+        returnItem.name = type+"-stone"
     }
     // if two types, harder
     else {

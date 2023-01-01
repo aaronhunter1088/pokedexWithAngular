@@ -50,7 +50,8 @@ export class PokemonListComponent implements OnInit {
             .then((pokemon: any) => {
               //console.log(pokemon);
               let sprites = pokemon['sprites'];
-              let types = pokemon.types;
+              let types = pokemon['types']; // list of objects
+              //console.log("types: ", types)
               let pokemonType = '';
               //console.log(types);
               if (types.length > 1) {
@@ -65,7 +66,8 @@ export class PokemonListComponent implements OnInit {
               pokemon.showDefaultImage = frontImg != null;
               this.pokemonService.getPokemonSpeciesData(pokemon['species'].url)
                 .subscribe((speciesData: any) => {
-                  pokemon.color = speciesData['color'].name;
+                  //console.log("speciesData: ", speciesData)
+                  pokemon.color = speciesData.color.name;
                   this.pokemonMap.set(pokemon.id, pokemon);
                 });
             });
