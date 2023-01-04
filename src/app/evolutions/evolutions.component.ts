@@ -60,6 +60,19 @@ export class EvolutionsComponent implements OnInit, OnChanges {
             this.setStages();
             this.setAllIDs();
             let chainRes = this.pokemonService.getPokemonChainData(this.pokemonChainID.toString());
+            // NEW IMPLEMENTATION
+            chainRes.then((chain:any) => {
+              this.getEvolutionDetails(chain['chain'])
+            }).then(() => {
+              this.allIDs.forEach(id => {
+                if (!this.pokemonIdAndAttributesMap.has(id)) {
+                  //console.log(id, " not found in attrMapNew. populating with default attrMapNew")
+                  this.pokemonIdAndAttributesMap.set(id, this.generateDefaultAttributesMap())
+                }
+              })
+            })
+
+            // PREVIOUS IMPLEMENTATION
             this.populatePokemonFamilyLevelsList(chainRes)
           })
           //console.log("family levels set. creating pokemon")
@@ -829,6 +842,35 @@ export class EvolutionsComponent implements OnInit, OnChanges {
       evolvesWithItem ||
       evolvesWithHeldItem ||
       evolvesByHappinessAttribute
+  }
+
+  getEvolutionDetails(chain: any) {
+    //chain.then((chain:any) => {
+      let name = chain['species'].name
+      let pkmnId = chain['species'].url.split("/")[6]
+      //console.log("name: ", name, " id: ", pkmnId)
+      for (let i = 0; i < chain['evolves_to']?.length; i++) {
+        let evolvesTo = chain['evolves_to'][i]
+        let evolutionDetails = evolvesTo['evolution_details'][0]
+        console.log("evolution_details for:", name, " id: ", pkmnId, " ", evolutionDetails)
+        this.getEvolutionDetails(evolvesTo)
+        if (evolvesTo['evolves_to'].length > 0) {
+          if (evolvesTo['evolves_to'].length > 1) {console.log("Printing final stage names")}
+          else {console.log("Printing final stage name")}
+          for (let j=0; j<evolvesTo['evolves_to'].length; j++) {
+            console.log(evolvesTo['evolves_to'][j]['species'])
+          }
+        }
+      }
+    //})
+    //   .then(() => {
+    //     this.allIDs.forEach(id => {
+    //       if (!this.pokemonIdAndAttributesMap.has(id)) {
+    //         //console.log(id, " not found in attrMapNew. populating with default attrMapNew")
+    //         this.pokemonIdAndAttributesMap.set(id, this.generateDefaultAttributesMap())
+    //       }
+    //     })
+    //   })
   }
 
   populatePokemonFamilyLevelsList(chainResponse: any) {
