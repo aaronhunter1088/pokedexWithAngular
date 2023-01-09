@@ -7,10 +7,9 @@
 </div>
 <div id="evolutions" style="display:inline-flex; justify-content: center; width:100%; height:45%;">
   <div class="box" style="overflow-y:scroll; height:460px;"
-       *ngFor="let list of pokemonFamily;">
-
+       *ngFor="let list of pokemonFamily; let i=index;">
         <div class="pokemon-grid"
-             *ngFor="let pokemon of list | sort:'{{pokemon.id}}'; let isNotLast = last; ">
+             *ngFor="let pokemon of list | sort:'{{pokemon.id}}'; let isNotLast = last;">
           <nav>
             <a routerLink="/pokedex/?pokemonID={{pokemon.id}}" style="text-decoration: none; color: black;">
               <div [ngStyle]="{'background-color':changeColor(pokemon.color)}" class="box">

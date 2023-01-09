@@ -80,13 +80,13 @@ export class PokedexComponent implements OnInit, OnChanges {
               this.pokemonWeight = pokemon.weight;
               // get and set color, and pokemon description
               this.pokemonService.getPokemonSpeciesData(species.url)
-                .subscribe((speciesData: any) => {
+                .then((speciesData: any) => {
                   //console.log("pokemon species: ", speciesData);
                   this.pokemonColor = speciesData['color']['name'];
                   this.changeColor(this.pokemonColor);
                   this.pokemonDescriptions = speciesData.flavor_text_entries;
                   this.pokemonDescription = this.getEnglishDescriptions();
-                });
+                }); //.subscribe
               // parse over the types
               this.pokemonType = pokemon.types;
               //console.log("pokemonType", pokemon.types);

@@ -32,7 +32,7 @@ export class PokemonService {
   getPokemonSpeciesData(speciesURL: string) { // speciesURL: string
     //console.log("service: ", this.Pokedex.getPokemonSpecies(pokemonIDName).then((res: any) => res.body))
     //return this.Pokedex.getPokemonSpecies(pokemonIDName);
-    return this.callURL(speciesURL);
+    return this.callURL(speciesURL).toPromise();
   }
 
   getPokemonLocationEncounters(pokemonID: string) {

@@ -95,13 +95,13 @@ export class SearchComponent implements OnInit {
         this.pokemonWeight = pokemon.weight;
         // get and set color, and pokemon description
         this.pokemonService.getPokemonSpeciesData(pokemon['species'].url)
-          .subscribe((speciesData: any) => {
+          .then((speciesData: any) => {
             //console.log("pokemon species: ", speciesData);
             this.pokemonColor = speciesData['color']['name'];
             this.setBackgroundColor();
             this.pokemonDescriptions = speciesData.flavor_text_entries;
             this.pokemonDescription = this.getEnglishDescriptions();
-          });
+          }); //.subscribe
         // parse over the types
         this.pokemonType = pokemon.types;
         //console.log("pokemonType", pokemon.types);
