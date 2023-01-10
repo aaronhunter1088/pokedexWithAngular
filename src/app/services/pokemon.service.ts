@@ -12,6 +12,7 @@ export class PokemonService {
   Pokedex = new this.PokeAPI.Pokedex();
   savedPageNumber: number = 1;
   pokemonID: number = 0;
+  itemsPerPage: number = 10
 
   getPokemonList(_limit: number, _offset: number) {
     const interval = {
@@ -63,4 +64,12 @@ export class PokemonService {
     this.pokemonID = pokemonID;
   }
 
+  saveNumberOfPokemonPerPage(itemsPerPage: number) {
+    console.log("saving number of pokemon viewable")
+    this.itemsPerPage = itemsPerPage
+  }
+
+  getNumberOfPokemonPerPage(): number {
+    return this.itemsPerPage
+  }
 }

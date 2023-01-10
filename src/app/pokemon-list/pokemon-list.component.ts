@@ -24,7 +24,7 @@ export class PokemonListComponent implements OnInit {
 
   ngOnInit(): void {
     this.page = this.pokemonService.getSavedPage();
-    this.itemsPerPage = 10;
+    this.itemsPerPage = this.pokemonService.getNumberOfPokemonPerPage() // 10
     this.getThePokemon();
   }
 
@@ -32,6 +32,7 @@ export class PokemonListComponent implements OnInit {
 
   ngOnDestroy() {
     this.pokemonService.saveCurrentPage(this.page);
+    this.pokemonService.saveNumberOfPokemonPerPage(this.itemsPerPage)
     //this.pokemonService.savePokemonID(pokemon.value.id);
   }
 
