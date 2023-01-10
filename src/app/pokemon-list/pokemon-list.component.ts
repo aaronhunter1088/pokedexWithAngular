@@ -135,15 +135,32 @@ export class PokemonListComponent implements OnInit {
   }
 
   setNewPageNumber(newPage: string) {
-    this.page = Number.parseInt(newPage);
+    let chosenPage = Number.parseInt(newPage)
+    if (chosenPage < 0) {
+      alert("Page number cannot be negative")
+      return
+    }
+    else if (chosenPage > Math.round(this.numberOfPokemon/this.itemsPerPage)) {
+      alert("Cannot pick a number more than there are pages")
+      return
+    }
+    this.page = chosenPage
     this.getThePokemon();
     this.pokemonService.saveCurrentPage(this.page);
     this.blankPageNumber = '';
   }
 
   setNumberOfPokemonToDisplay(numberOfPokemon: string) {
-    this.itemsPerPage = Number.parseInt(numberOfPokemon)
-    this.getThePokemon();
+    let chosenNumber = Number.parseInt(numberOfPokemon)
+    if (chosenNumber < 0) {
+      alert("Cannot show negative number of Pokemon")
+      return
+    }
+    else {
+      if (chosenNumber > 50) alert(chosenNumber + " is too high. Defaulting to 50")
+      this.itemsPerPage = chosenNumber
+      this.getThePokemon();
+    }
   }
 
   displayGifHelpText() {
