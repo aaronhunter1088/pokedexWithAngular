@@ -9,17 +9,18 @@ import { HttpClient } from "@angular/common/http";
 })
 export class PokemonListComponent implements OnInit {
 
-  constructor(private pokemonService: PokemonService, private http: HttpClient) {
-  }
-
   pokemonMap = new Map<number, any>();
   page: number = 1;
   blankPageNumber: string = ''
-  itemsPerPage = 10;
+  itemsPerPage: number
   numberOfPokemon: number = 0;
   defaultImagePresent: boolean = false;
   showGifs: boolean = false;
   gifImagePresent: boolean = false;
+
+  constructor(private pokemonService: PokemonService, private http: HttpClient) {
+    this.itemsPerPage = 10
+  }
 
   ngOnInit(): void {
     this.page = this.pokemonService.getSavedPage();
@@ -36,10 +37,10 @@ export class PokemonListComponent implements OnInit {
 
   getThePokemon() {
     console.log("page number is ", this.page);
-    this.itemsPerPage = 10;
+    //this.itemsPerPage = 10;
     console.log("itemsPerPage: ", this.itemsPerPage);
     // @ts-ignore
-    this.pokemonService.getPokemonList(this.itemsPerPage, (this.page - 1) * 10)
+    this.pokemonService.getPokemonList(this.itemsPerPage, (this.page - 1) * this.itemsPerPage)
       .then((pokemonListResponse: any) => {
         this.pokemonMap = this.newMap();
         //console.log(response);
@@ -137,6 +138,11 @@ export class PokemonListComponent implements OnInit {
     this.getThePokemon();
     this.pokemonService.saveCurrentPage(this.page);
     this.blankPageNumber = '';
+  }
+
+  setNumberOfPokemonToDisplay(numberOfPokemon: string) {
+    this.itemsPerPage = Number.parseInt(numberOfPokemon)
+    this.getThePokemon();
   }
 
   displayGifHelpText() {

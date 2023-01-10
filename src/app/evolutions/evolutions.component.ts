@@ -74,6 +74,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
           this.pokemonFamilyIDs.forEach(idList => {
             this.createListOfPokemonForIDList(idList)
           });
+
         }
     })
   }

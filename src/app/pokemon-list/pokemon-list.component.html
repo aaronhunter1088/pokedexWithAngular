@@ -7,10 +7,19 @@
   <mat-slide-toggle (click)="showGifs = !showGifs;" title="If GIF is not present, official artwork will show!">
     Show GIFs
   </mat-slide-toggle>
-  <p style="padding-right: 50px;"></p>
-  <input type="text" placeholder="Jump to Page #" style="width:100px;"
-         #pageNumber
-         (keydown.enter)="setNewPageNumber(pageNumber.value); pageNumber.value = '';"/>
+  <p style="padding-right: 10px;"></p>
+  <div id="jumpToPage" style="display:flex;width: 100%;">
+    <input type="text" placeholder="Page #" style="width:50px;"
+           #pageNumber
+           (keydown.enter)="setNewPageNumber(pageNumber.value); pageNumber.value = '';"/>
+    <button class="icon" (click)="setNewPageNumber(pageNumber.value); pageNumber.value = '';">Jump to Page</button>
+  </div>
+  <div id="show#Pokemon" style="display:flex;width: 100%;">
+    <input type="text" placeholder="# of PkMn" style="width:65px;"
+           #showNPokemon
+           (keydown.enter)="setNumberOfPokemonToDisplay(showNPokemon.value); showNPokemon.value = '';"/>
+    <button class="icon" (click)="setNumberOfPokemonToDisplay(showNPokemon.value); showNPokemon.value = '';">Show Pokemon</button>
+  </div>
 </div>
 
 <div class="pokemon-grid">
