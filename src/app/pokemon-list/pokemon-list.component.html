@@ -52,9 +52,11 @@
               >
             </ng-template>
             <ng-template #officialImage>
-              <img *ngIf="sprites.key == 'official';"
+              <img *ngIf="sprites.key == 'official' && sprites.value != null;"
                    [src]="sprites.value" alt="{{pokemon.value.name}}-official"
               >
+              <img *ngIf="sprites.key == 'official' && sprites.value == null;"
+                src="assets/images/pokeball1.jpg" alt="pokeball">
             </ng-template>
           </div>
           <div id="info" style="display:inline-block;">
