@@ -21,17 +21,22 @@
                  <h3 id="weightOfPokemon">Weight: {{pokemon.weight}} kg</h3>
                  <h3 id="colorOfPokemon">Color: {{pokemon.color | titlecase}}</h3>
                  <h3 id="typeOfPokemon">Type: {{pokemon.type}}</h3>
-                 <div *ngIf="pokemon.evolves && pokemon.evolutionLevel != null">
-                   <h3 id="levelOfPokemon1">Evolves At Lvl: {{pokemon.evolutionLevel}}</h3>
-                 </div>
-                 <div *ngIf="pokemon.doesEvolvesWithItem">
-                   <h3 id="itemToEvolve">Evolves with: {{pokemon.evolvesByUsingItem | titlecase}}</h3>
-                 </div>
-                 <div *ngIf="pokemon.doesEvolveWithHeldItem">
-                   <h3 id="heldItemToEvolve">Evolves with: {{pokemon.held_item | titlecase}}</h3>
-                 </div>
-                 <div *ngIf="pokemon.evolvesByHappinessAttribute">
-                   <h3 id="attrToEvolve">Evolves w/ Happiness: {{pokemon.happinessAttribute}}</h3>
+                 <div *ngIf="pokemon.evolves">
+                   <div *ngIf="pokemon.evolutionLevel != null">
+                     <h3 id="levelOfPokemon1">Evolves At Lvl: {{pokemon.evolutionLevel}}</h3>
+                   </div> <!-- with level -->
+                   <div *ngIf="pokemon.doesEvolvesWithItem;">
+                     <div *ngFor="let item of pokemon.evolvesByUsingItem">
+                       <!--<h3 id="itemToEvolve">Evolves with: {{pokemon.evolvesByUsingItem}}</h3>-->
+                       <h3 id="itemToEvolve">Evolves with: {{item | titlecase}}</h3>
+                     </div>
+                   </div> <!-- with use_item -->
+                   <div *ngIf="pokemon.doesEvolveWithHeldItem">
+                     <h3 id="heldItemToEvolve">Evolves with: {{pokemon.held_item | titlecase}}</h3>
+                   </div> <!-- with held_item -->
+                   <div *ngIf="pokemon.evolvesByHappinessAttribute">
+                     <h3 id="attrToEvolve">Evolves w/ Happiness: {{pokemon.happinessAttribute}}</h3>
+                   </div> <!-- with happiness -->
                  </div>
                  <div *ngIf="!pokemon.evolves">
                    <h3 id="levelOfPokemon">Final Form</h3>

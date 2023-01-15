@@ -69,6 +69,8 @@ export class EvolutionsComponent implements OnInit, OnChanges {
                   this.pokemonIdAndAttributesMap.set(id, this.generateDefaultAttributesMap())
                 }
               })
+            }).then(() => {
+              this.printPokemonMap()
             })
           })
           this.pokemonFamilyIDs.forEach(idList => {
@@ -592,7 +594,13 @@ export class EvolutionsComponent implements OnInit, OnChanges {
       ["min_happiness", null ],
       ["min_level", null ],
       ["needs_rain", null ],
-      ["time_of_day", null ]
+      ["time_of_day", null ],
+      ["known_move", null ],
+      ["known_move_type", null ],
+      ["party_species", null ],
+      ["relative_physical_stats", null ],
+      ["trade_species", null ],
+      ["turn_upside_down", null ]
     ])
   }
 
@@ -785,13 +793,20 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     // @ts-ignore
     idsInChainCheck.every(listOfIDs => {
       let found = false;
+      if (pokemonResponse.name.split("-")[1] === "gmax") {
+        evolvesWithItem = null;
+        return false;
+      }
       if (listOfIDs.includes(pokemonResponse.id)) {
         found = true;
         let idToUse = listOfIDs[0];
         // @ts-ignore
         evolvesWithItem = this.pokemonIdAndAttributesMap.get(idToUse).get("use_item")
-        if (evolvesWithItem != null) {
+        if (evolvesWithItem != null && !(evolvesWithItem instanceof Array)) {
           evolvesWithItem = this.checkTypeAndUpdateIfNecessary(pokemonResponse.id, evolvesWithItem, pokemonResponse.types)
+        } else {
+          // @ts-ignore
+          evolvesWithItem = this.pokemonIdAndAttributesMap.get(idToUse).get("use_item")
         }
       }
       if (found) return false; // to break out of every
@@ -810,20 +825,20 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     // evolving can occur based on level, item, or specific attribute
     this.doesPokemonEvolve = this.determineIfPokemonEvolves(level, isBabyPokemon, doesEvolveWithItem, doesEvolveWithHeldItem, evolvesByHappinessAttribute)
     // edit weight
-    let weight = pokemonResponse.weight.toString()
+    let adjustedWeight = pokemonResponse.weight.toString()
     //console.log("'"+weight.slice(0,-1)+"'" + "." + "'"+weight.slice(-1)+"'")
-    weight = weight.slice(0,-1) + '.' + weight.slice(-1)
+    adjustedWeight = adjustedWeight.slice(0,-1) + '.' + adjustedWeight.slice(-1)
     //pokemon.weight = weight
     // edit height
-    let height = pokemonResponse.height.toString();
-    if (height.length == 1) height = "0." + height
-    else height = height.slice(0,-1) + '.' + height.slice(-1)
+    let adjustedHeight = pokemonResponse.height.toString();
+    if (adjustedHeight.length == 1) adjustedHeight = "0." + adjustedHeight
+    else adjustedHeight = adjustedHeight.slice(0,-1) + '.' + adjustedHeight.slice(-1)
     //pokemon.height = height;
     let pokemon = {
       id: pokemonResponse.id,
       name: pokemonResponse.name,
-      height: height,
-      weight: weight,
+      height: adjustedHeight,
+      weight: adjustedWeight,
       color: speciesData['color'].name,
       type: pokemonType,
       photo: this.defaultImagePresent ? frontImg : officialImg,
@@ -854,23 +869,24 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     //console.log("chain: ",chain);
     let name = chain['species'].name
     let pkmnId = chain['species'].url.split("/")[6]
+    let evolutionDetails: any;
     //console.log("name: ", name, " id: ", pkmnId)
     for (let i = 0; i < chain['evolves_to'].length; i++) {
       let evolvesTo = chain['evolves_to'][i]
-      let evolutionDetails: any
       for (let j=0; j < evolvesTo['evolution_details'].length; j++) {
         // possibility of multiple evolution_details
         evolutionDetails = evolvesTo['evolution_details'][j]
         evolutionDetails.isBaby = chain.is_baby
         evolutionDetails.id = pkmnId
+        evolutionDetails.name = name
         // setup attributesMap
-        if (this.pokemonIdAndAttributesMap.get(pkmnId) == null) {
-          this.setAttributesMap(evolutionDetails, name);
+        if (this.pokemonIdAndAttributesMap.get(Number.parseInt(pkmnId)) == null) {
+          this.setAttributesMap(evolutionDetails);
         } else {
-          this.updateAttributesMap(evolutionDetails, <Map<string, any>>this.pokemonIdAndAttributesMap.get(pkmnId))
+          this.updateAttributesMap(evolutionDetails, <Map<string, any>>this.pokemonIdAndAttributesMap.get(Number.parseInt(pkmnId)))
         }
         //this.pokemonIdAndAttributesMap.set(pkmnId, this.specificAttributesMap);
-        this.specificAttributesMap = this.generateDefaultAttributesMap()
+        //this.specificAttributesMap = this.generateDefaultAttributesMap()
         //console.log("evolution_details for:", name, " id: ", pkmnId, " ", evolutionDetails)
         this.getEvolutionDetails(evolvesTo) //, attributesMap, pokemonMap)
       }
@@ -885,8 +901,9 @@ export class EvolutionsComponent implements OnInit, OnChanges {
           // evolvesTo['evolves_to'][j]['evolution_details'][0]
           evolutionDetails.isBaby = evolvesTo.is_baby
           evolutionDetails.id = pkmnId
-          this.setAttributesMap(evolutionDetails, name)
-          //this.pokemonIdAndAttributesMap.set(pkmnId, this.specificAttributesMap)
+          evolutionDetails.name = name
+          this.setAttributesMap(evolutionDetails)
+          this.pokemonIdAndAttributesMap.set(Number.parseInt(pkmnId), this.specificAttributesMap)
         }
         //printPokemonMap(pokemonMap)
       }
@@ -901,6 +918,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
   updateAttributesMap(details: any, attributesMap: Map<string, any>) {
     //console.log("updating map for:", attributesMap.get("name"), " ", details)
     console.log("evolution_detailsU for:", attributesMap.get("name"), " ", details)
+    //attributesMap.set("name", attributesMap.get("name"))
     if (details?.gender != null) {
       if (attributesMap.get("gender") == null) {
         attributesMap.set("gender",details.gender)
@@ -1070,61 +1088,61 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     //return this.specificAttributesMap;
   }
 
-  setAttributesMap(details: any, name: string) {
-    console.log("evolution_details for:", name, " ", details)
+  setAttributesMap(details: any) {
+    console.log("evolution_details for:", details.name, " ", details)
+    this.specificAttributesMap = this.generateDefaultAttributesMap()
     //if (details == null) return attributesMap
-    if (this.specificAttributesMap.get("name") == null) this.specificAttributesMap.set("name", name)
+    if (this.specificAttributesMap.get("name") == null) this.specificAttributesMap.set("name", details.name)
     if (this.specificAttributesMap.get("gender") == null) this.specificAttributesMap.set("gender", details?.gender ? details.gender : null)
     if (this.specificAttributesMap.get("is_baby") == null) this.specificAttributesMap.set("is_baby", details?.isBaby)
     if (this.specificAttributesMap.get("held_item") == null) {
-      this.specificAttributesMap.set("held_item", details?.held_item?.name ? details.held_item.name : null)
+      this.specificAttributesMap.set("held_item", details?.held_item?.name ? Array.of(details.held_item.name) : null)
     }
     if (this.specificAttributesMap.get("use_item") == null) {
-      this.specificAttributesMap.set("use_item", details?.item?.name ? details.item.name : null)
+      this.specificAttributesMap.set("use_item", details?.item?.name ? Array.of(details.item.name) : null)
     }
     if (this.specificAttributesMap.get("min_happiness") == null) {
-      this.specificAttributesMap.set("min_happiness", details?.min_happiness ? details.min_happiness : null)
+      this.specificAttributesMap.set("min_happiness", details?.min_happiness ? Array.of(details.min_happiness) : null)
     }
     if (this.specificAttributesMap.get("min_level") == null) {
-      this.specificAttributesMap.set("min_level", details?.min_level ? details.min_level : null)
+      this.specificAttributesMap.set("min_level", details?.min_level ? Array.of(details.min_level) : null)
     }
     if (this.specificAttributesMap.get("time_of_day") == null) {
       if (details?.time_of_day == null && details?.time_of_day !== '') {
-        this.specificAttributesMap.set("time_of_day", details?.time_of_day ? details.time_of_day : null)
+        this.specificAttributesMap.set("time_of_day", details?.time_of_day ? Array.of(details.time_of_day) : null)
       }
     }
     if (this.specificAttributesMap.get("location") == null) {
-      this.specificAttributesMap.set("location", details?.location?.name ? details.location.name : null)
+      this.specificAttributesMap.set("location", details?.location?.name ? Array.of(details.location.name) : null)
     }
     if (this.specificAttributesMap.get("needs_rain") == null) {
-      this.specificAttributesMap.set("needs_rain", details.needs_overworld_rain != null ? details.needs_overworld_rain : null)
+      this.specificAttributesMap.set("needs_rain", details.needs_overworld_rain != null ? Array.of(details.needs_overworld_rain) : null)
     }
     if (this.specificAttributesMap.get("min_affection") == null) {
-      this.specificAttributesMap.set("min_affection", details?.min_affection != null ? details.min_affection : null)
+      this.specificAttributesMap.set("min_affection", details?.min_affection != null ? Array.of(details.min_affection) : null)
     }
     if (this.specificAttributesMap.get("min_beauty") == null) {
-      this.specificAttributesMap.set("min_beauty", details?.min_beauty ? details.min_beauty : null)
+      this.specificAttributesMap.set("min_beauty", details?.min_beauty ? Array.of(details.min_beauty) : null)
     }
     if (this.specificAttributesMap.get("known_move") == null) {
-      this.specificAttributesMap.set("known_move", details?.known_move?.name ? details.known_move.name : null)
+      this.specificAttributesMap.set("known_move", details?.known_move?.name ? Array.of(details.known_move.name) : null)
     }
     if (this.specificAttributesMap.get("known_move_type") == null) {
-      this.specificAttributesMap.set("known_move_type", details?.known_move_type?.name ? details.known_move_type.name : null)
+      this.specificAttributesMap.set("known_move_type", details?.known_move_type?.name ? Array.of(details.known_move_type.name) : null)
     }
     if (this.specificAttributesMap.get("party_species") == null) {
-      this.specificAttributesMap.set("party_species", details?.party_species ? details.party_species : null)
+      this.specificAttributesMap.set("party_species", details?.party_species ? Array.of(details.party_species) : null)
     }
     if (this.specificAttributesMap.get("relative_physical_stats") == null) {
-      this.specificAttributesMap.set("relative_physical_stats", details?.relative_physical_stats ? details.relative_physical_stats : null)
+      this.specificAttributesMap.set("relative_physical_stats", details?.relative_physical_stats ? Array.of(details.relative_physical_stats) : null)
     }
     if (this.specificAttributesMap.get("trade_species") == null) {
-      this.specificAttributesMap.set("trade_species", details?.trade_species ? details.trade_species : null)
+      this.specificAttributesMap.set("trade_species", details?.trade_species ? Array.of(details.trade_species) : null)
     }
     if (this.specificAttributesMap.get("turn_upside_down") == null) {
-      this.specificAttributesMap.set("turn_upside_down", details?.turn_upside_down ? details.turn_upside_down : null)
+      this.specificAttributesMap.set("turn_upside_down", details?.turn_upside_down ? Array.of(details.turn_upside_down) : null)
     }
     this.pokemonIdAndAttributesMap.set(Number.parseInt(details.id), this.specificAttributesMap)
-    //return this.specificAttributesMap
   }
 
   checkTypeAndUpdateIfNecessary(id: number, item: any, pokemonType: any): string {
@@ -1150,5 +1168,12 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     console.log("returnItem: ", returnItem)
     return returnItem;
+  }
+
+  printPokemonMap() {
+    console.log("All attributes maps created: ", this.pokemonIdAndAttributesMap.size)
+    Array.from(this.pokemonIdAndAttributesMap).forEach((innerMap) => {
+      console.log("id: ", innerMap[0], " , map: ", innerMap[1])
+    })
   }
 }
