@@ -809,11 +809,21 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     let doesEvolveWithHeldItem = held_item != null
     // evolving can occur based on level, item, or specific attribute
     this.doesPokemonEvolve = this.determineIfPokemonEvolves(level, isBabyPokemon, doesEvolveWithItem, doesEvolveWithHeldItem, evolvesByHappinessAttribute)
+    // edit weight
+    let weight = pokemonResponse.weight.toString()
+    //console.log("'"+weight.slice(0,-1)+"'" + "." + "'"+weight.slice(-1)+"'")
+    weight = weight.slice(0,-1) + '.' + weight.slice(-1)
+    //pokemon.weight = weight
+    // edit height
+    let height = pokemonResponse.height.toString();
+    if (height.length == 1) height = "0." + height
+    else height = height.slice(0,-1) + '.' + height.slice(-1)
+    //pokemon.height = height;
     let pokemon = {
       id: pokemonResponse.id,
       name: pokemonResponse.name,
-      height: pokemonResponse.height,
-      weight: pokemonResponse.weight,
+      height: height,
+      weight: weight,
       color: speciesData['color'].name,
       type: pokemonType,
       photo: this.defaultImagePresent ? frontImg : officialImg,

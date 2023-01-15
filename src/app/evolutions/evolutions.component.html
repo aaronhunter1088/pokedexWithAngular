@@ -6,45 +6,45 @@
   <h2>Stage {{stage}}</h2>
 </div>
 <div id="evolutions" style="display:inline-flex; justify-content: center; width:100%; height:45%;">
-  <div class="box" style="overflow-y:scroll; height:460px;"
-       *ngFor="let list of pokemonFamily; let i=index;">
-        <div class="pokemon-grid"
-             *ngFor="let pokemon of list | sort:'{{pokemon.id}}'; let isNotLast = last;">
-          <nav>
-            <a routerLink="/pokedex/?pokemonID={{pokemon.id}}" style="text-decoration: none; color: black;">
-              <div [ngStyle]="{'background-color':changeColor(pokemon.color)}" class="box">
-                <h3 id="idOfPokemon">ID: {{pokemon.id}}</h3>
-                <h3 id="nameOfPokemon">Name: {{pokemon.name | titlecase}}</h3>
-                <img style="width:100px; height:100px;"
-                     src="{{pokemon.photo}}" alt="{{pokemon.photo}}-default">
-                <h3 id="heightOfPokemon">Height: {{pokemon.height}}</h3>
-                <h3 id="weightOfPokemon">Weight: {{pokemon.weight}}</h3>
-                <h3 id="colorOfPokemon">Color: {{pokemon.color | titlecase}}</h3>
-                <h3 id="typeOfPokemon">Type: {{pokemon.type}}</h3>
-                <div *ngIf="pokemon.evolves && pokemon.evolutionLevel != null">
-                  <h3 id="levelOfPokemon1">Evolves At Lvl: {{pokemon.evolutionLevel}}</h3>
-                </div>
-                <div *ngIf="pokemon.doesEvolvesWithItem">
-                  <h3 id="itemToEvolve">Evolves with: {{pokemon.evolvesByUsingItem | titlecase}}</h3>
-                </div>
-                <div *ngIf="pokemon.doesEvolveWithHeldItem">
-                  <h3 id="heldItemToEvolve">Evolves with: {{pokemon.held_item | titlecase}}</h3>
-                </div>
-                <div *ngIf="pokemon.evolvesByHappinessAttribute" style="display:inline-flex;">
-                  <h3>Evolves w/ Happiness: </h3>
-                  <h3 id="attrToEvolve">{{pokemon.happinessAttribute}}</h3>
-                </div>
-                <div *ngIf="!pokemon.evolves">
-                  <h3 id="levelOfPokemon">Final Form</h3>
-                </div>
-              </div>
-            </a>
-          </nav>
-          <div style="padding-top:5%; padding-bottom:5%; text-align:center; justify-content:center;"
-               *ngIf="!isNotLast">
-            <img style="width:25px; height:25px;"
-                 src="./assets/images/pokeball1.jpg">
-          </div>
-        </div>
+  <div style="overflow-y:scroll; height:460px;"
+       *ngFor="let list of pokemonFamily; let i=index; let isLastPokemon = last; let size = index;">
+       <div class="pokemon-grid"
+            *ngFor="let pokemon of list | sort:'{{pokemon.id}}'; let isNotLast = last;">
+         <nav>
+           <a routerLink="/pokedex/?pokemonID={{pokemon.id}}" style="text-decoration: none; color: black;">
+               <div [ngStyle]="{'background-color':changeColor(pokemon.color)}" class="box">
+                 <h3 id="idOfPokemon">ID: {{pokemon.id}}</h3>
+                 <h3 id="nameOfPokemon">Name: {{pokemon.name | titlecase}}</h3>
+                 <img style="width:100px; height:100px;"
+                      src="{{pokemon.photo}}" alt="{{pokemon.photo}}-default">
+                 <h3 id="heightOfPokemon">Height: {{pokemon.height}} m</h3>
+                 <h3 id="weightOfPokemon">Weight: {{pokemon.weight}} kg</h3>
+                 <h3 id="colorOfPokemon">Color: {{pokemon.color | titlecase}}</h3>
+                 <h3 id="typeOfPokemon">Type: {{pokemon.type}}</h3>
+                 <div *ngIf="pokemon.evolves && pokemon.evolutionLevel != null">
+                   <h3 id="levelOfPokemon1">Evolves At Lvl: {{pokemon.evolutionLevel}}</h3>
+                 </div>
+                 <div *ngIf="pokemon.doesEvolvesWithItem">
+                   <h3 id="itemToEvolve">Evolves with: {{pokemon.evolvesByUsingItem | titlecase}}</h3>
+                 </div>
+                 <div *ngIf="pokemon.doesEvolveWithHeldItem">
+                   <h3 id="heldItemToEvolve">Evolves with: {{pokemon.held_item | titlecase}}</h3>
+                 </div>
+                 <div *ngIf="pokemon.evolvesByHappinessAttribute">
+                   <h3 id="attrToEvolve">Evolves w/ Happiness: {{pokemon.happinessAttribute}}</h3>
+                 </div>
+                 <div *ngIf="!pokemon.evolves">
+                   <h3 id="levelOfPokemon">Final Form</h3>
+                 </div>
+               </div>
+             </a>
+         </nav>
+         <div style="padding-top:25px; text-align:center; justify-content:center;"
+              *ngIf="!isNotLast">
+           <img style="width:25px; height:25px;"
+                src="./assets/images/pokeball1.jpg">
+         </div>
+       </div>
+
   </div>
 </div>

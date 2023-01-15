@@ -9,7 +9,6 @@ const routes: Routes = [
   {path: '', component: PokemonListComponent},
   {path: 'search', component: SearchComponent},
   {path: 'pokedex/:pokemonID', component: PokedexComponent}
-  //{path: 'evolutions/:pokemonID', component: EvolutionsComponent}
 ];
 
 @NgModule({

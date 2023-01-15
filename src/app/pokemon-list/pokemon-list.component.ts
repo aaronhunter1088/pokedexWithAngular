@@ -24,7 +24,7 @@ export class PokemonListComponent implements OnInit {
 
   ngOnInit(): void {
     this.page = this.pokemonService.getSavedPage();
-    this.itemsPerPage = this.pokemonService.getNumberOfPokemonPerPage() // 10
+    this.itemsPerPage = this.pokemonService.getNumberOfPokemonPerPage() // default is 10
     this.getThePokemon();
   }
 
@@ -33,12 +33,10 @@ export class PokemonListComponent implements OnInit {
   ngOnDestroy() {
     this.pokemonService.saveCurrentPage(this.page);
     this.pokemonService.saveNumberOfPokemonPerPage(this.itemsPerPage)
-    //this.pokemonService.savePokemonID(pokemon.value.id);
   }
 
   getThePokemon() {
     console.log("page number is ", this.page);
-    //this.itemsPerPage = 10;
     console.log("itemsPerPage: ", this.itemsPerPage);
     // @ts-ignore
     this.pokemonService.getPokemonList(this.itemsPerPage, (this.page - 1) * this.itemsPerPage)
@@ -70,6 +68,16 @@ export class PokemonListComponent implements OnInit {
                 .then((speciesData: any) => { // .subscribe
                   //console.log("speciesData: ", speciesData)
                   pokemon.color = speciesData.color.name;
+                  // edit weight
+                  let weight = pokemon.weight.toString()
+                  //console.log("'"+weight.slice(0,-1)+"'" + "." + "'"+weight.slice(-1)+"'")
+                  weight = weight.slice(0,-1) + '.' + weight.slice(-1)
+                  pokemon.weight = weight
+                  // edit height
+                  let height = pokemon.height.toString();
+                  if (height.length == 1) height = "0." + height
+                  else height = height.slice(0,-1) + '.' + height.slice(-1)
+                  pokemon.height = height;
                   this.pokemonMap.set(pokemon.id, pokemon);
                 });
             });
@@ -161,9 +169,5 @@ export class PokemonListComponent implements OnInit {
       this.itemsPerPage = chosenNumber
       this.getThePokemon();
     }
-  }
-
-  displayGifHelpText() {
-    return ;
   }
 }
