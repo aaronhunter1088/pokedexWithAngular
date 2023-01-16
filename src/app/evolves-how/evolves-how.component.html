@@ -1,0 +1,19 @@
+<ng-template [ngIf]="doesPokemonEvolve" [ngIfElse]="doesNotEvolve">
+  <div *ngIf="hasMinimumLevel != false">
+    <h3 id="levelOfPokemon1">Evolves At Lvl: {{minimumLevel}}</h3>
+  </div> <!-- with level -->
+  <div *ngIf="hasUseItem;">
+    <div *ngFor="let item of useItem">
+      <h3 id="itemToEvolve">Evolves with: {{item | titlecase}}</h3>
+    </div>
+  </div> <!-- with use_item -->
+  <div *ngIf="hasHeldItem">
+    <h3 id="heldItemToEvolve">Evolves with: {{heldItem | titlecase}}</h3>
+  </div> <!-- with held_item -->
+  <div *ngIf="hasMinimumHappiness">
+    <h3 id="attrToEvolve">Evolves w/ Happiness: {{minimumHappiness}}</h3>
+  </div> <!-- with happiness -->
+</ng-template>
+<ng-template #doesNotEvolve>
+  <h3 id="levelOfPokemon">Final Form</h3>
+</ng-template>
