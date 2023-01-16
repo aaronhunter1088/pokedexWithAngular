@@ -26,7 +26,18 @@ export class EvolvesHowComponent implements OnInit {
   minimumHappiness: any
   heldItem: any
   isABaby: boolean = false
-
+  hasDayNight: boolean = false
+  dayNight: any
+  hasLocations: boolean = false
+  locations: any
+  hasMinimumAffection: boolean = false
+  minimumAffection: any
+  hasBeauty: boolean = false
+  minimumBeauty: any
+  hasKnownMoves: boolean = false
+  knownMoves: any
+  hasKnownMoveType: boolean = false
+  knownMoveTypes: any
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {
     this.generateEvolutionsMap()
@@ -71,8 +82,23 @@ export class EvolvesHowComponent implements OnInit {
       this.isABaby = this.specificAttributesMap.get("is_baby") != null && this.specificAttributesMap.get("is_baby") != false
       this.hasMinimumHappiness = this.specificAttributesMap.get("min_happiness") != null
       if (this.hasMinimumHappiness) this.minimumHappiness = this.specificAttributesMap.get("min_happiness")
+      this.hasDayNight = this.specificAttributesMap.get("time_of_day")
+      if (this.hasDayNight) this.dayNight = this.specificAttributesMap.get("time_of_day")
+      this.hasLocations = this.specificAttributesMap.get("location")
+      if (this.hasLocations) this.locations = this.specificAttributesMap.get("location")
+      this.hasMinimumAffection = this.specificAttributesMap.get("min_affection")
+      if (this.hasMinimumAffection) this.minimumAffection = this.specificAttributesMap.get("min_affection")
+      this.hasBeauty = this.specificAttributesMap.get("min_beauty")
+      if (this.hasBeauty) this.minimumBeauty = this.specificAttributesMap.get("min_beauty")
+      this.hasKnownMoves = this.specificAttributesMap.get("known_move")
+      if (this.hasKnownMoves) this.knownMoves = this.specificAttributesMap.get("known_move")
+      this.hasKnownMoveType = this.specificAttributesMap.get("known_move_type")
+      if (this.hasKnownMoveType) this.knownMoveTypes = this.specificAttributesMap.get("known_move_type")
+
       // @ts-ignore
-      this.doesPokemonEvolve = this.determineIfPokemonEvolves(this.hasMinimumLevel, this.isABaby, this.hasUseItem, this.hasHeldItem, this.hasMinimumHappiness
+      this.doesPokemonEvolve = this.determineIfPokemonEvolves(
+        this.hasMinimumLevel, this.isABaby, this.hasUseItem, this.hasHeldItem, this.hasMinimumHappiness, this.hasBeauty,
+        this.hasMinimumAffection, this.hasDayNight, this.hasKnownMoves
       )
       console.log("does pokemon evolve: ", this.doesPokemonEvolve)
     })
@@ -604,21 +630,20 @@ export class EvolvesHowComponent implements OnInit {
 
   generateDefaultAttributesMap() {
     return new Map<string, any>([
-      ["name", null ],
+      ["name", null ], // on screen
       ["gender", null ],
       ["is_baby", null ],
       ["held_item", null ], // on screen
       ["use_item", null ], //  on screen
-      ["known_move", null ],
-      ["location", null ],
-      ["min_affection", null ],
-      ["min_beauty", null ],
+      ["known_move", null ], // on screen
+      ["location", null ], // on screen
+      ["min_affection", null ], // on screen
+      ["min_beauty", null ], // on screen
       ["min_happiness", null ], // on screen
-      ["min_level", null ],
+      ["min_level", null ], // on screen
       ["needs_rain", null ],
-      ["time_of_day", null ],
-      ["known_move", null ],
-      ["known_move_type", null ],
+      ["time_of_day", null ], // on screen
+      ["known_move_type", null ], // on screen
       ["party_species", null ],
       ["relative_physical_stats", null ],
       ["trade_species", null ],
@@ -724,9 +749,9 @@ export class EvolvesHowComponent implements OnInit {
         attributesMap.set("min_happiness", happinesses)
       }
     }
-    if (details?.time_of_day != null && details?.time_of_day !== '') {
+    if (details?.time_of_day != null && details?.time_of_day != "") {
       if (attributesMap.get("time_of_day") == null) {
-        attributesMap.set("time_of_day", Array.of(details.time_of_day))
+        attributesMap.set("time_of_day", Array.of(details?.time_of_day))
       } else {
         let timeOfDay = attributesMap.get("time_of_day")
         let newTimeOfDay = details.time_of_day
@@ -863,14 +888,15 @@ export class EvolvesHowComponent implements OnInit {
       this.specificAttributesMap.set("use_item", details?.item?.name ? Array.of(details.item.name) : null)
     }
     if (this.specificAttributesMap.get("min_happiness") == null) {
-      this.specificAttributesMap.set("min_happiness", details?.min_happiness ? Array.of(details.min_happiness) : null)
+      this.specificAttributesMap.set("min_happiness", Array.of(details.min_happiness))
     }
     if (this.specificAttributesMap.get("min_level") == null) {
       this.specificAttributesMap.set("min_level", details?.min_level ? Array.of(details.min_level) : null)
     }
     if (this.specificAttributesMap.get("time_of_day") == null) {
-      if (details?.time_of_day == null && details?.time_of_day !== '') {
-        this.specificAttributesMap.set("time_of_day", details?.time_of_day ? Array.of(details.time_of_day) : null)
+      if (details?.time_of_day !== null && details.time_of_day !== "") {
+        this.specificAttributesMap.set("time_of_day", Array.of(details.time_of_day) )
+        console.log("timeOfDay: ", this.specificAttributesMap.get("time_of_day"))
       }
     }
     if (this.specificAttributesMap.get("location") == null) {
@@ -906,30 +932,161 @@ export class EvolvesHowComponent implements OnInit {
     this.pokemonIdAndAttributesMap.set(Number.parseInt(details.id), this.specificAttributesMap)
   }
 
+  // clean up map, remove unnecessary duplicates
   cleanupAttributesMap() {
     console.log("All attributes maps created: ", this.pokemonIdAndAttributesMap.size)
     Array.from(this.pokemonIdAndAttributesMap).forEach((innerMap) => {
       console.log("id: ", innerMap[0], " , map: ", innerMap[1])
-      // clean up map, remove unnecessary duplicates
       // clean up min_happiness
       let minHappinessValues = innerMap[1].get("min_happiness")
       if (minHappinessValues != null) {
         let minHappinessSet = new Set()
         minHappinessValues.forEach((value: any) => {
-          if (!minHappinessSet.has(value)) minHappinessSet.add(value)
+          if (!minHappinessSet.has(value)) {
+            if (value == null) {}
+            else {
+              minHappinessSet.add(value)
+            }
+          }
         })
         innerMap[1].set("min_happiness", [...minHappinessSet].join(' '))
+        this.pokemonIdAndAttributesMap.set(innerMap[0], innerMap[1])
+      }
+      // clean up time_of_day: Currently works fine; no cleanup needed
+      // let timeOfDayValues = innerMap[1].get("time_of_day")
+      // if (timeOfDayValues != null) {
+      //   let dayNightSet = new Set()
+      //   timeOfDayValues.forEach((time: any) => {
+      //     if (!dayNightSet.has(time)) dayNightSet.add(time)
+      //   })
+      //   innerMap[1].set("time_of_day", Array.of(dayNightSet).join(' '))
+      //   this.pokemonIdAndAttributesMap.set(innerMap[0], innerMap[1])
+      // }
+      // clean up minimum affection
+      let minAffectionValues = innerMap[1].get("min_affection")
+      if (minAffectionValues != null) {
+        let minAffectionSet = new Set()
+        minAffectionValues.forEach((value: any) => {
+          if (!minAffectionSet.has(value)) minAffectionSet.add(value)
+        })
+        innerMap[1].set("min_affection", [...minAffectionSet].join(' '))
+        this.pokemonIdAndAttributesMap.set(innerMap[0], innerMap[1])
+      }
+      // clean up minimum beauty
+      let minBeautyValues = innerMap[1].get("min_beauty")
+      if (minBeautyValues != null) {
+        let minBeautySet = new Set()
+        minBeautyValues.forEach((value: any) => {
+          if (!minBeautySet.has(value)) minBeautySet.add(value)
+        })
+        innerMap[1].set("min_beauty", [...minBeautySet].join(' '))
+        this.pokemonIdAndAttributesMap.set(innerMap[0], innerMap[1])
+      }
+      // clean up known_moves
+      let knownMoveValues = innerMap[1].get("known_move")
+      if (knownMoveValues != null) {
+        let knownMoveSet = new Set()
+        knownMoveValues.forEach((value: any) => {
+          if (!knownMoveSet.has(value)) knownMoveSet.add(value)
+        })
+        innerMap[1].set("known_move", [...knownMoveSet].join(' '))
+        this.pokemonIdAndAttributesMap.set(innerMap[0], innerMap[1])
+      }
+      // clean up known_move_type
+      let knownMoveTypeValues = innerMap[1].get("known_move_type")
+      if (knownMoveTypeValues != null) {
+        let knownMoveTypeSet = new Set()
+        knownMoveTypeValues.forEach((value: any) => {
+          if (!knownMoveTypeSet.has(value)) knownMoveTypeSet.add(value)
+        })
+        innerMap[1].set("known_move_type", [...knownMoveTypeSet])
         this.pokemonIdAndAttributesMap.set(innerMap[0], innerMap[1])
       }
     })
   }
 
-  determineIfPokemonEvolves(level: boolean, isBabyPokemon: boolean, evolvesWithItem: boolean, evolvesWithHeldItem: boolean, evolvesByHappinessAttribute: boolean) {
-    console.log(level, " ", isBabyPokemon, " ", evolvesWithItem, " ", evolvesWithHeldItem, " ", evolvesByHappinessAttribute)
+  determineIfPokemonEvolves(level: boolean, isBabyPokemon: boolean, evolvesWithItem: boolean,
+                            evolvesWithHeldItem: boolean, evolvesByHappinessAttribute: boolean,
+                            hasBeauty: boolean, hasMinAffection: boolean, hasDayNight: boolean,
+                            hasKnownMove: boolean)
+  {
+    //console.log(level, " ", isBabyPokemon, " ", evolvesWithItem, " ", evolvesWithHeldItem, " ", evolvesByHappinessAttribute)
     return level ||
       isBabyPokemon ||
       evolvesWithItem ||
       evolvesWithHeldItem ||
       evolvesByHappinessAttribute
   }
+
+  checkTypeAndUpdateIfNecessary(id: number, item: any, pokemonType: any): string {
+    let type1, type2
+    let returnItem = ''
+    let itemFirstPart = item.split("-") // ex: ice-stone, thunder-stone ....
+    // if one type
+    if (pokemonType.length == 1) {
+      type1 = pokemonType[0].type.name
+      if (itemFirstPart != type1)
+        returnItem = type1+"-stone"
+    }
+    // if two types
+    else {
+      type1 = pokemonType[0].type.name
+      type2 = pokemonType[1].type.name
+      if (itemFirstPart != type1)
+        returnItem = type1+"-stone"
+      else if (itemFirstPart != type2)
+        returnItem = type2+"-stone"
+      else
+        returnItem = item;
+    }
+    console.log("returnItem: ", returnItem)
+    return returnItem;
+  }
+
+  /*
+  //@ts-ignore
+    idsInChainCheck.every(listOfIDs => {
+      let found = false;
+      if (listOfIDs.includes(pokemonResponse.id)) {
+        found = true;
+        let idToUse = listOfIDs[0];
+        // @ts-ignore
+        level = this.pokemonIdAndAttributesMap.get(idToUse).get("min_level")
+        // if is a gmax pokemon, set to 0
+        if (pokemonResponse.name.split("-")[1] === "gmax") {
+          level = null;
+        }
+        return;
+      }
+      if (found) return false; // to break out of every
+      else listCount += 1;
+    })
+    listCount = 0;
+    //item. item can be different. not always the same
+    // @ts-ignore
+    //let evolvesWithItem = <any>specifics.get("use_item")
+    //console.log("evolvesWithItem: ", evolvesWithItem)
+    // @ts-ignore
+    idsInChainCheck.every(listOfIDs => {
+      let found = false;
+      if (pokemonResponse.name.split("-")[1] === "gmax") {
+        evolvesWithItem = null;
+        return false;
+      }
+      if (listOfIDs.includes(pokemonResponse.id)) {
+        found = true;
+        let idToUse = listOfIDs[0];
+        // @ts-ignore
+        evolvesWithItem = this.pokemonIdAndAttributesMap.get(idToUse).get("use_item")
+        if (evolvesWithItem != null && !(evolvesWithItem instanceof Array)) {
+          evolvesWithItem = this.checkTypeAndUpdateIfNecessary(pokemonResponse.id, evolvesWithItem, pokemonResponse.types)
+        } else {
+          // @ts-ignore
+          evolvesWithItem = this.pokemonIdAndAttributesMap.get(idToUse).get("use_item")
+        }
+      }
+      if (found) return false; // to break out of every
+      else listCount += 1;
+    })
+   */
 }

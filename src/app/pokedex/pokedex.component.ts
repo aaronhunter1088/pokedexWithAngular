@@ -238,7 +238,6 @@ export class PokedexComponent implements OnInit, OnChanges {
   }
 
   showEvolutions() {
-    console.log("IMPLEMENT")
     this.setDivsToNotShow()
     this.evolutionsDiv = true
     this.setButtonsToNormalFont()
