@@ -11,6 +11,7 @@ import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import { OrderModule } from "ngx-order-pipe";
 import { ArraySortPipe } from './array-sort.pipe';
+import { EvolvesHowComponent } from './evolves-how/evolves-how.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { ArraySortPipe } from './array-sort.pipe';
     PokemonListComponent,
     routingComponents,
     ArraySortPipe,
+    EvolvesHowComponent,
   ],
     imports: [
         BrowserModule,

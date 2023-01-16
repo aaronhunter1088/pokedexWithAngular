@@ -1,7 +1,6 @@
-import {Component, Input, OnChanges, OnInit} from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from "@angular/router";
-import {PokemonService} from "../services/pokemon.service";
-import {min} from "rxjs";
+import { PokemonService } from "../services/pokemon.service";
 
 @Component({
   selector: 'app-evolutions',
@@ -70,7 +69,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
                 }
               })
             }).then(() => {
-              this.printPokemonMap()
+              this.cleanupAttributesMap()
             })
           })
           this.pokemonFamilyIDs.forEach(idList => {
@@ -585,13 +584,13 @@ export class EvolutionsComponent implements OnInit, OnChanges {
       ["name", null ],
       ["gender", null ],
       ["is_baby", null ],
-      ["held_item", null ],
-      ["use_item", null ],
+      ["held_item", null ], // on screen
+      ["use_item", null ], //  on screen
       ["known_move", null ],
       ["location", null ],
       ["min_affection", null ],
       ["min_beauty", null ],
-      ["min_happiness", null ],
+      ["min_happiness", null ], // on screen
       ["min_level", null ],
       ["needs_rain", null ],
       ["time_of_day", null ],
@@ -932,7 +931,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.held_item != null) {
       if (attributesMap.get("held_item") == null) {
-        attributesMap.set("held_item", details.held_item.name)
+        attributesMap.set("held_item", Array.of(details.held_item.name))
       } else {
         let heldItem = attributesMap.get("held_item")
         let newHeldItem = details.held_item.name
@@ -943,7 +942,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.item != null) {
       if (attributesMap.get("use_item") == null) {
-        attributesMap.set("use_item", details.item.name )
+        attributesMap.set("use_item", Array.of(details.item.name))
       } else {
         let item = attributesMap.get("use_item")
         let newItem = details.item.name
@@ -954,7 +953,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.min_happiness != null) {
       if (attributesMap.get("min_happiness") == null) {
-        attributesMap.set("min_happiness", details.min_happiness)
+        attributesMap.set("min_happiness", Array.of(details.min_happiness))
       } else {
         let minHappy = attributesMap.get("min_happiness")
         let newMinHappy = details.min_happiness
@@ -965,7 +964,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.time_of_day != null && details?.time_of_day !== '') {
       if (attributesMap.get("time_of_day") == null) {
-        attributesMap.set("time_of_day", details.time_of_day)
+        attributesMap.set("time_of_day", Array.of(details.time_of_day))
       } else {
         let timeOfDay = attributesMap.get("time_of_day")
         let newTimeOfDay = details.time_of_day
@@ -976,7 +975,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.location != null) {
       if (attributesMap.get("location") == null) {
-        attributesMap.set("location", details.location.name)
+        attributesMap.set("location", Array.of(details.location.name))
       } else {
         let location = attributesMap.get("location")
         let newLocation = details.location.name
@@ -987,7 +986,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.needs_overworld_rain != null) {
       if (attributesMap.get("needs_rain") == null) {
-        attributesMap.set("needs_rain", details.needs_overworld_rain)
+        attributesMap.set("needs_rain", Array.of(details.needs_overworld_rain))
       } else {
         let needsRain = attributesMap.get("needs_rain")
         let newNeedsRain = details.needs_overworld_rain
@@ -998,7 +997,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.min_affection != null) {
       if (attributesMap.get("min_affection") == null) {
-        attributesMap.set("min_affection", details.min_affection)
+        attributesMap.set("min_affection", Array.of(details.min_affection))
       } else {
         let minAffection = attributesMap.get("min_affection")
         let newMinAffection = details.min_affection
@@ -1009,7 +1008,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.min_beauty != null) {
       if (attributesMap.get("min_beauty") == null) {
-        attributesMap.set("min_beauty", details.min_beauty)
+        attributesMap.set("min_beauty", Array.of(details.min_beauty))
       } else {
         let minBeauty = attributesMap.get("min_beauty")
         let newMinBeauty = details.min_beauty
@@ -1020,7 +1019,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.known_move != null) {
       if (attributesMap.get("known_move") == null) {
-        attributesMap.set("known_move", details.known_move.name)
+        attributesMap.set("known_move", Array.of(details.known_move.name))
       } else {
         let knownMove = attributesMap.get("known_move")
         let newKnownMove = details.known_move.name
@@ -1031,7 +1030,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.known_move_type != null) {
       if (attributesMap.get("known_move_type") == null) {
-        attributesMap.set("known_move_type", details.known_move_type.name)
+        attributesMap.set("known_move_type", Array.of(details.known_move_type.name))
       } else {
         let knownMoveType = attributesMap.get("known_move_type")
         let newKnownMoveType = details.known_move_type.name
@@ -1042,7 +1041,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.party_species != null) {
       if (attributesMap.get("party_species") == null) {
-        attributesMap.set("party_species", details.party_species)
+        attributesMap.set("party_species", Array.of(details.party_species))
       } else {
         let partySpecies = attributesMap.get("party_species")
         let newPartySpecies = details.party_species
@@ -1053,7 +1052,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.relative_physical_stats != null) {
       if (attributesMap.get("relative_physical_stats") == null) {
-        attributesMap.set("relative_physical_stats", details.relative_physical_stats)
+        attributesMap.set("relative_physical_stats", Array.of(details.relative_physical_stats))
       } else {
         let relPhysicalStat = attributesMap.get("relative_physical_stats")
         let newRelPhysicalStat = details.relative_physical_stats
@@ -1064,7 +1063,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.trade_species != null) {
       if (attributesMap.get("trade_species") == null) {
-        attributesMap.set("trade_species", details.trade_species)
+        attributesMap.set("trade_species", Array.of(details.trade_species))
       } else {
         let tradeSpecies = attributesMap.get("trade_species")
         let newTradeSpecies = details.trade_species
@@ -1075,7 +1074,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     }
     if (details?.turn_upside_down != null) {
       if (attributesMap.get("turn_upside_down") == null) {
-        attributesMap.set("turn_upside_down", details.turn_upside_down)
+        attributesMap.set("turn_upside_down", Array.of(details.turn_upside_down))
       } else {
         let turnUpsideDown = attributesMap.get("turn_upside_down")
         let newTurnUpsideDown = details.turn_upside_down
@@ -1170,10 +1169,21 @@ export class EvolutionsComponent implements OnInit, OnChanges {
     return returnItem;
   }
 
-  printPokemonMap() {
+  cleanupAttributesMap() {
     console.log("All attributes maps created: ", this.pokemonIdAndAttributesMap.size)
     Array.from(this.pokemonIdAndAttributesMap).forEach((innerMap) => {
       console.log("id: ", innerMap[0], " , map: ", innerMap[1])
+      // clean up map, remove unnecessary duplicates
+      // clean up min_happiness
+      let minHappinessValues = innerMap[1].get("min_happiness")
+      if (minHappinessValues != null) {
+        let minHappinessSet = new Set()
+        minHappinessValues.forEach((value: any) => {
+          if (!minHappinessSet.has(value)) minHappinessSet.add(value)
+        })
+        innerMap[1].set("min_happiness", [...minHappinessSet].join(' '))
+        this.pokemonIdAndAttributesMap.set(innerMap[0], innerMap[1])
+      }
     })
   }
 }

@@ -51,6 +51,7 @@
         <button id="descriptionBtn" class="tab" (click)="showDescription()">Description</button>
         <button id="locationsBtn" class="tab" (click)="showLocations()">Locations</button>
         <button id="movesBtn" class="tab" (click)="showMoves()">Moves</button>
+        <button id="evolutionsBtn" class="tab" (click)="showEvolutions()">How {{pokemonName | titlecase}} Evolves</button>
       </div>
       <br>
       <div
@@ -77,6 +78,14 @@
           class="listStyle"
           *ngFor="let move of pokemonMoves"
         >{{move}}</h3>
+      </div>
+      <div
+        *ngIf="evolutionsDiv"
+        id="evolutionsDiv"
+        style="overflow-y: scroll; overflow-x: hidden; height:200px;">
+        <app-evolves-how
+          [pokemonID]="pokemonID"
+        ></app-evolves-how>
       </div>
     </div>
   </div>
