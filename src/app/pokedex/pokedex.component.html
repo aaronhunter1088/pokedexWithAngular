@@ -1,6 +1,6 @@
 <div id="pokedex">
   <div class="pokemon-grid">
-    <div id="imageAndImageBtns" class="box"
+    <div id="imageAndImageBtns" class="box" style="padding-top: 10px;"
          [ngStyle]="{'background-color':changeColor(pokemonColor)}">
       <div id="backAndName">
         <div id="backArrow" style="float:left;">
@@ -31,7 +31,7 @@
         </div>
       </div>
     </div>
-    <div id="info" class="box"
+    <div id="info" class="box" style="padding-top: 10px;"
          [ngStyle]="{'background-color':changeColor(pokemonColor)}">
       <div id="nameAndID" style="display:inline-flex">
         <h3 id="name">Name: {{pokemonName | titlecase}}</h3> &nbsp;&nbsp;&nbsp;&nbsp;
