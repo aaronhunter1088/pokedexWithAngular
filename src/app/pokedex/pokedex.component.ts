@@ -30,7 +30,6 @@ export class PokedexComponent implements OnInit, OnChanges {
   screenHeight: number = 0
   styleFlag: boolean = false
   showGifs: boolean = false
-  regularImage: string = ''
   gifImage: string = ''
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {}
@@ -67,7 +66,7 @@ export class PokedexComponent implements OnInit, OnChanges {
               let species = pokemon['species']
               //console.log("sprites", pokemon['sprites'])
               this.pokemonImage = pokemon['sprites']['front_default']
-              this.regularImage = this.pokemonImage
+              this.pokemonImage = this.pokemonImage != null ? this.pokemonImage : "./assets/images/pokeball1.jpg"
               this.gifImage = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default
               this.pokemonName = pokemon.name
               this.pokemonID = pokemon.id
@@ -296,9 +295,13 @@ export class PokedexComponent implements OnInit, OnChanges {
       }
     }
     // @ts-ignore
-    let randomIndex = Math.floor(Math.random() * englishDescriptions.length-1);
-    if (randomIndex < 0) randomIndex = 0;
-    this.pokemonDescription =englishDescriptions[randomIndex].flavor_text;
+    if (englishDescriptions.length > 0) {
+      let randomIndex = Math.floor(Math.random() * englishDescriptions.length-1)
+      if (randomIndex < 0) randomIndex = 0
+      this.pokemonDescription = englishDescriptions[randomIndex].flavor_text
+    } else {
+      this.pokemonDescription = "No descriptions were found!"
+    }
     //console.log(this.pokemonDescription);
     return this.pokemonDescription;
   }

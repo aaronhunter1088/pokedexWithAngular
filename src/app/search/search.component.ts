@@ -170,14 +170,18 @@ export class SearchComponent implements OnInit {
       // @ts-ignore
       if (this.pokemonDescriptions[i].language.name === "en") {
         //console.log("desc: ", this.pokemonDescriptions[i]);
-        englishDescriptions.push(this.pokemonDescriptions[i]);
+        englishDescriptions.push(this.pokemonDescriptions[i])
       }
     }
     // @ts-ignore
-    let randomIndex = Math.floor(Math.random() * englishDescriptions.length-1);
-    if (randomIndex < 0) randomIndex = 0;
-    this.pokemonDescription =englishDescriptions[randomIndex].flavor_text;
+    if (englishDescriptions.length > 0) {
+      let randomIndex = Math.floor(Math.random() * englishDescriptions.length-1)
+      if (randomIndex < 0) randomIndex = 0
+      this.pokemonDescription = englishDescriptions[randomIndex].flavor_text
+    } else {
+      this.pokemonDescription = "No descriptions were found!"
+    }
     //console.log(this.pokemonDescription);
-    return this.pokemonDescription;
+    return this.pokemonDescription
   }
 }
