@@ -20,13 +20,13 @@ export class AppComponent implements OnInit, OnChanges {
       if (event instanceof NavigationStart) {
         // Show loading indicator
         this.previousRoute = this.currentRoute;
-        console.log("Route change detected. previousRoute: ", this.previousRoute);
+        //console.log("Route change detected. previousRoute: ", this.previousRoute);
       }
 
       if (event instanceof NavigationEnd) {
         // Hide loading indicator
         this.currentRoute = event.url;
-        console.log("currentRoute: ", event.url);
+        //console.log("currentRoute: ", event.url);
       }
 
       if (event instanceof NavigationError) {

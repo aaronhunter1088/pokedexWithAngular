@@ -8,7 +8,7 @@ import { ActivatedRoute } from "@angular/router";
   styleUrls: ['./pokedex.component.css']
 })
 export class PokedexComponent implements OnInit, OnChanges {
-  @Input() sprites = {}
+  @Input() pokemonSprites = {}
   @Input() pokemonImage = ''
   @Input() pokemonName = ''
   @Input() pokemonID: string | number  = ''
@@ -31,6 +31,7 @@ export class PokedexComponent implements OnInit, OnChanges {
   styleFlag: boolean = false
   showGifs: boolean = false
   gifImage: string = ''
+  officialImage: string = ''
 
   constructor(private route: ActivatedRoute, private pokemonService: PokemonService) {}
 
@@ -46,14 +47,15 @@ export class PokedexComponent implements OnInit, OnChanges {
     this.styleFlag = this.screenWidth > 400 && this.screenHeight > 400
     this.route.params
       .subscribe(params => {
-        console.log("params", params)
+        //console.log("params", params)
         //console.log("pokemonID", this.pokemonID);
         if (Object.keys(params).length !== 0) {
-          console.log("params keys.length: ", Object.keys(params).length)
+          //console.log("params keys.length: ", Object.keys(params).length)
           this.pokemonID = <number>params['pokemonID'].split("=")[1].trim()
         }
+        if (this.pokemonID === undefined) this.pokemonID = <number>params['pokemonID']
         if (this.pokemonID > 0) {
-          console.log("chosen pokemon with ID: '" + this.pokemonID + "'")
+          //console.log("chosen pokemon with ID: '" + this.pokemonID + "'")
           this.pokemonDescription = ''
           this.pokemonLocations = []
           this.pokemonMoves = []
@@ -62,13 +64,16 @@ export class PokedexComponent implements OnInit, OnChanges {
               //console.log("pokemon: ", pokemon)
               this.pokemonName = pokemon.name
               //console.log("name: " + pokemon.name)
-              this.sprites = <object>pokemon['sprites']
+              let sprites = pokemon['sprites']//<object>pokemon['sprites']
+              //sprites.official = sprites.official;
+              pokemon['sprites'] = sprites;
+              this.pokemonSprites = sprites;
               let species = pokemon['species']
-              //console.log("sprites", pokemon['sprites'])
               this.pokemonImage = pokemon['sprites']['front_default']
               this.pokemonImage = this.pokemonImage != null ? this.pokemonImage : "./assets/images/pokeball1.jpg"
-              this.gifImage = pokemon['sprites']['versions']['generation-v']['black-white']['animated'].front_default
-              this.pokemonName = pokemon.name
+              this.gifImage = pokemon['sprites']['versions']['generation-v']['black-white']['animated']['front_default']
+              this.officialImage = pokemon['sprites']['other']['official-artwork']['front_default']
+              //this.pokemonName = pokemon.name
               this.pokemonID = pokemon.id
               // edit weight
               let weight = pokemon.weight.toString()
@@ -152,7 +157,7 @@ export class PokedexComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    console.log("changes")
+    //console.log("changes")
     this.setDivsToNotShow()
     this.descriptionDiv = true
     document.body.style.backgroundColor = "#ffffff"
@@ -165,14 +170,32 @@ export class PokedexComponent implements OnInit, OnChanges {
   }
 
   showImage(option: string): void {
+    let pokeballImage = "./assets/images/pokeball1.jpg";
     switch (option) {
       case 'default' : {
-        this.pokemonImage = JSON.parse(JSON.stringify(this.sprites)).front_default;
+        this.pokemonImage = JSON.parse(JSON.stringify(this.pokemonSprites)).front_default;
         if (this.pokemonImage === null) {
-          this.pokemonImage = "./assets/images/pokeball1.jpg";
+          this.pokemonImage = pokeballImage;
         }
         // @ts-ignore
         document.getElementById('defaultImgBtn').style.fontWeight = this.bold;
+        // @ts-ignore
+        document.getElementById('officialImgBtn').style.fontWeight = this.normal;
+        // @ts-ignore
+        document.getElementById('shinyImgBtn').style.fontWeight = this.normal;
+        // @ts-ignore
+        document.getElementById('gifImgBtn').style.fontWeight = this.normal;
+        break;
+      }
+      case 'official' : {
+        this.pokemonImage = JSON.parse(JSON.stringify(this.officialImage))
+        if (this.pokemonImage === null) {
+          this.pokemonImage = pokeballImage;
+        }
+        // @ts-ignore
+        document.getElementById('defaultImgBtn').style.fontWeight = this.normal;
+        // @ts-ignore
+        document.getElementById('officialImgBtn').style.fontWeight = this.bold;
         // @ts-ignore
         document.getElementById('shinyImgBtn').style.fontWeight = this.normal;
         // @ts-ignore
@@ -180,12 +203,14 @@ export class PokedexComponent implements OnInit, OnChanges {
         break;
       }
       case 'shiny' : {
-        this.pokemonImage = JSON.parse(JSON.stringify(this.sprites)).front_shiny;
+        this.pokemonImage = JSON.parse(JSON.stringify(this.pokemonSprites)).front_shiny;
         if (this.pokemonImage === null) {
-          this.pokemonImage = "./assets/images/pokeball1.jpg";
+          this.pokemonImage = pokeballImage;
         }
         // @ts-ignore
         document.getElementById('defaultImgBtn').style.fontWeight = this.normal;
+        // @ts-ignore
+        document.getElementById('officialImgBtn').style.fontWeight = this.normal;
         // @ts-ignore
         document.getElementById('shinyImgBtn').style.fontWeight = this.bold;
         // @ts-ignore
@@ -193,12 +218,14 @@ export class PokedexComponent implements OnInit, OnChanges {
         break;
       }
       case 'gif' : {
-        this.pokemonImage = JSON.parse(JSON.stringify(this.sprites))['versions']['generation-v']['black-white']['animated'].front_default;
+        this.pokemonImage = JSON.parse(JSON.stringify(this.pokemonSprites))['versions']['generation-v']['black-white']['animated'].front_default;
         if (this.pokemonImage === null) {
-          this.pokemonImage = "./assets/images/pokeball1.jpg";
+          this.pokemonImage = pokeballImage;
         }
         // @ts-ignore
         document.getElementById('defaultImgBtn').style.fontWeight = this.normal;
+        // @ts-ignore
+        document.getElementById('officialImgBtn').style.fontWeight = this.normal;
         // @ts-ignore
         document.getElementById('shinyImgBtn').style.fontWeight = this.normal;
         // @ts-ignore
@@ -206,7 +233,7 @@ export class PokedexComponent implements OnInit, OnChanges {
         break;
       }
       default : {
-        this.pokemonImage = "./assets/images/pokeball1.jpg";
+        this.pokemonImage = pokeballImage;
         break;
       }
     }

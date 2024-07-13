@@ -128,7 +128,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
             if (pokemonID == chainID) {
               // @ts-ignore
               //console.log(pokemonID + " found with key", key);
-              console.log("pokemonChainID: ", key);
+              //console.log("pokemonChainID: ", key);
               keyToReturn = key;
               return;
             }
@@ -203,10 +203,10 @@ export class EvolutionsComponent implements OnInit, OnChanges {
   }
 
   createListOfPokemonForIDList(idList: any[]) {
-    console.log("IDList: ", idList, " length: ", idList.length)
+    //console.log("IDList: ", idList, " length: ", idList.length)
     let pokemonList: any[] = [];
     Array.from(idList).forEach((id: any) => {
-      console.log("id: ",id);
+      //console.log("id: ",id);
       pokemonList = [];
       this.pokemonService.getPokemonByName(id)
         .then((pokemonResponse: any) => {
@@ -221,7 +221,7 @@ export class EvolutionsComponent implements OnInit, OnChanges {
       //this.pokemonFamily.push(pokemonList);
     })
     pokemonList.sort(function (a, b) { return a.id-b.id; });
-    console.log("adding list to familyList: ", pokemonList, " length is ", pokemonList.length)
+    //console.log("adding list to familyList: ", pokemonList, " length is ", pokemonList.length)
     this.pokemonFamily.push(pokemonList);
   }
 
