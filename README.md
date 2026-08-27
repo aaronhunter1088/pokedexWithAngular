@@ -37,7 +37,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application
+Run `ng serve` for a dev server. Navigate to `http://localhost:4202/`. The application
 will automatically reload if you change any of the source files.
 
 ## Debugging the UI
@@ -50,9 +50,9 @@ script to "start". Start calls `ng serve` under the hood. Add the following argu
 - --open
 
 Next, click on `Browser/Live Edit` tab and enable opening the browser after launch. Set the browser to
-any that is allowed. Set the URL to `http://localhost:4200/`. Apply and save the configuration.
+any that is allowed. Set the URL to `http://localhost:4202/`. Apply and save the configuration.
 Last, create a JavaScript Debug configuration. Give it a name, set the browser the the URL to the same
-one as before: `http://localhost:4200/`. Apply and save the configuration.
+one as before: `http://localhost:4202/`. Apply and save the configuration.
 When you start the npm run configuration, it will launch the browser, follwed by the JavaScript
 debug configuration, which attaches itself to the browser session.
 
@@ -64,6 +64,19 @@ Run `ng generate component component-name` to generate a new component. You can 
 ## Build
 
 Run `ng build` or `npm run build` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+Run `deployAngularAppForServer` to build the project for server-side rendering. The built artifacts will be
+stored in the `dist/` directory. The pokedex-with-angular folder will contain a /broswer directory. That
+is what will be uploaded to the server. All files inside will be extracted and moved into the
+/angular directory.
+Login to the server using sftp.
+Execute put -r (/dist)/pokedex-with-angular /opt/tomcat11/angular
+This should successfully upload all the files inside the pokedex-with-angular folder to the server. Extract the files
+in the /browser directory and move them up one level to the /angular directory.
+Delete the pokedexapiui folder and the browser folder.
+The server will need to be configured to serve the files in the angular directory.
+
+We now have a GitHub Action to deploy and revert to the previous version. Use those actions.
 
 ## Running unit tests
 
